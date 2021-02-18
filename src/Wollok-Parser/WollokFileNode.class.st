@@ -54,6 +54,18 @@ WollokFileNode >> initialize [
 	suites := OrderedCollection new: 2.
 ]
 
+{ #category : #testing }
+WollokFileNode >> isLibrary [
+	
+	^ self filename extension = WollokInterpreter libraryExtension
+]
+
+{ #category : #testing }
+WollokFileNode >> isProgram [
+	
+	^ main isNotNil
+]
+
 { #category : #generated }
 WollokFileNode >> main [
 	^ main

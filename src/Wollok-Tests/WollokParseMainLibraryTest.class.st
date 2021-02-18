@@ -1,17 +1,17 @@
 Class {
-	#name : #WollokSanityTests,
+	#name : #WollokParseMainLibraryTest,
 	#superclass : #AbstractWollokSmokeTests,
 	#category : #'Wollok-Tests'
 }
 
 { #category : #'building suites' }
-WollokSanityTests class >> testParameters [ 
+WollokParseMainLibraryTest class >> testParameters [ 
 
 	| directory aMatrix |
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := '/Users/admin/dev/wollok/wollok-language/test/sanity' asFileReference.
+	directory := WollokInterpreter libraryRootDirectory.
 
 	directory allChildren 
 		select: [ :e | #( 'wlk' 'wtest' 'wpgm' ) includes: e extension ]
