@@ -1,11 +1,17 @@
 Class {
 	#name : #WollokNamedObject,
-	#superclass : #WollokElement,
+	#superclass : #WollokRuntimeElement,
 	#instVars : [
 		'object'
 	],
 	#category : #'Wollok-Interpreter'
 }
+
+{ #category : #accessing }
+WollokNamedObject >> assignedValue [
+	
+	^ object
+]
 
 { #category : #initialization }
 WollokNamedObject >> initializeStateUsing: aWollokInterpreter [ 

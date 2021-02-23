@@ -5,7 +5,10 @@ Class {
 		'name',
 		'parent',
 		'children',
-		'fileNode'
+		'fileNode',
+		'imports',
+		'main',
+		'suites'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -19,33 +22,66 @@ WollokPackage class >> named: aString parent: aPackage [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : #children }
+WollokPackage >> add: anElement [
+
+	^ self at: anElement name put: anElement
+]
+
+{ #category : #children }
+WollokPackage >> addSuite: aWollokTestSuite [ 
+
+	suites add: aWollokTestSuite.
+	aWollokTestSuite parent: self
+]
+
+{ #category : #children }
 WollokPackage >> at: aString [ 
 	
 	^ children at: aString
 ]
 
-{ #category : #accessing }
+{ #category : #children }
 WollokPackage >> at: aString ifAbsent: aBlockClosure [ 
 	
 	^ children at: aString ifAbsent: aBlockClosure
 ]
 
+{ #category : #children }
+WollokPackage >> at: aString ifAbsentPut: aBlockClosure [ 
+	
+	^ children at: aString ifAbsentPut: [ | aNewValue | 
+			aNewValue := aBlockClosure value.
+			aNewValue parent: self.
+			aNewValue]
+]
+
 { #category : #accessing }
 WollokPackage >> at: aString put: aValue [ 
 	
+	aValue parent: self.
 	^ children at: aString put: aValue
 ]
 
-{ #category : #accessing }
-WollokPackage >> defaultImports [
-	self shouldBeImplemented.
+{ #category : #resolving }
+WollokPackage >> doResolve: qualifiedName [ 
+	
+	| currentElement |
+	
+	currentElement := children at: qualifiedName segments first 
+		ifAbsent: [ 
+			parent ifNil: [ ^ nil ].
+			^ parent doResolve: qualifiedName ].
+	
+	^ qualifiedName segments size = 1 
+		ifTrue: [ currentElement ]
+		ifFalse: [ currentElement doResolve: qualifiedName copyWithoutFirst ]
 ]
 
 { #category : #accessing }
-WollokPackage >> ensurePackage: aString [ 
-	
-	^ children at: aString ifAbsentPut: [ self class named: aString parent: self ]
+WollokPackage >> fileNode [
+
+	^ fileNode
 ]
 
 { #category : #accessing }
@@ -66,29 +102,57 @@ WollokPackage >> fullyQualifiedName [
 
 { #category : #accessing }
 WollokPackage >> imports [
-	
-	^ self defaultImports , fileNode imports
+	^ imports
+]
+
+{ #category : #accessing }
+WollokPackage >> imports: anObject [
+	imports := anObject
 ]
 
 { #category : #initialization }
 WollokPackage >> initialize [
 
 	super initialize.
-	children := Dictionary new
+	
+	children := Dictionary new.
+	suites := OrderedCollection new.
 ]
 
 { #category : #initialization }
 WollokPackage >> initializeStateUsing: aWollokInterpreter [
 
-	aWollokInterpreter pushCreationContext: self.
-	children do: [ :aChildren | aChildren initializeStateUsing: aWollokInterpreter ].
-	aWollokInterpreter popCreationContext.
+	aWollokInterpreter pushInitializationContextFor: self.
+
+	children do: [ :aChildren | 
+		aChildren initializeStateUsing: aWollokInterpreter ].
+	
+	aWollokInterpreter popContext.
+]
+
+{ #category : #accessing }
+WollokPackage >> main [
+	
+	^ main
+]
+
+{ #category : #accessing }
+WollokPackage >> main: anObject [
+	
+	main := anObject
 ]
 
 { #category : #accessing }
 WollokPackage >> name: aString [ 
 	
 	name := aString
+]
+
+{ #category : #accessing }
+WollokPackage >> package [
+
+	^ self
+	
 ]
 
 { #category : #accessing }
@@ -100,38 +164,20 @@ WollokPackage >> parent: aPackage [
 { #category : #resolving }
 WollokPackage >> resolve: aStringOrQualifiedName [ 
 	
-	| qualifiedName currentElement |
+	| qualifiedName |
 	
 	qualifiedName := aStringOrQualifiedName asWollokQualifiedName.
 	
-	currentElement := children at: qualifiedName segments first 
-		ifAbsent: [ ^ parent resolve: qualifiedName ].
+	(self doResolve: qualifiedName) ifNotNil: [ :aValue | ^ aValue ].
 	
-	^ qualifiedName segments size = 1 
-		ifTrue: [ currentElement ]
-		ifFalse: [ currentElement resolve: qualifiedName copyWithoutFirst ]
+	self imports do: [ :anImport |
+		(self doResolve: anImport , qualifiedName) ifNotNil: [:aValue | ^aValue]].
+	
+	self error: 'Could not resolve ' , qualifiedName printString
 ]
 
-{ #category : #loading }
-WollokPackage >> visitClass: aWollokClassNode [ 
-
-	| anObject |
-	anObject := WollokClass fromAST: aWollokClassNode inPackage: self.
-	self at: anObject name put: anObject
-]
-
-{ #category : #loading }
-WollokPackage >> visitNamedObject: aWollokNamedObjectNode [ 
-
-	| anObject |
-	anObject := WollokNamedObject fromAST: aWollokNamedObjectNode inPackage: self.
-	self at: anObject name put: anObject
-]
-
-{ #category : #loading }
-WollokPackage >> visitVariableDeclaration: aWollokVariableDeclarationNode [ 
-
-	| aVariable |
-	aVariable := WollokPackageVariable fromAST: aWollokVariableDeclarationNode inPackage: self.
-	self at: aVariable name put: aVariable	
+{ #category : #accessing }
+WollokPackage >> suites [
+	
+	^ suites 
 ]

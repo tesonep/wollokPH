@@ -1,11 +1,11 @@
 Class {
-	#name : #WollokSanityTests,
+	#name : #WollokParseSanityTests,
 	#superclass : #AbstractWollokSmokeTests,
 	#category : #'Wollok-Tests'
 }
 
 { #category : #'building suites' }
-WollokSanityTests class >> testParameters [ 
+WollokParseSanityTests class >> testParameters [ 
 
 	| directory aMatrix |
 	

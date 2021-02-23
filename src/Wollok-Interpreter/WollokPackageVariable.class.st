@@ -1,6 +1,6 @@
 Class {
 	#name : #WollokPackageVariable,
-	#superclass : #WollokElement,
+	#superclass : #WollokRuntimeElement,
 	#category : #'Wollok-Interpreter'
 }
 

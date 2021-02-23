@@ -1,24 +1,14 @@
 Class {
 	#name : #WollokMainLibraryTest,
-	#superclass : #TestCase,
-	#instVars : [
-		'interpreter'
-	],
+	#superclass : #AbstractWollokInterpreterTest,
 	#category : #'Wollok-Tests'
 }
 
 { #category : #tests }
-WollokMainLibraryTest >> setUp [
-
-	interpreter := WollokInterpreter new.
-
-]
-
-{ #category : #tests }
 WollokMainLibraryTest >> testParseWollokLangHasObjectClass [
 
-	interpreter initializeWithMainLibrary.
-		
+	self interpretExpression: '1'.
+
 	self assert: (interpreter resolve: 'wollok.lang.Object') isNotNil. 
 
 	
@@ -27,8 +17,7 @@ WollokMainLibraryTest >> testParseWollokLangHasObjectClass [
 { #category : #tests }
 WollokMainLibraryTest >> testParseWollokLangHasWollokLangPackage [
 
-	interpreter initializeWithMainLibrary.
-
+	self interpretExpression: '1'.
 	self assert: (interpreter resolve: 'wollok.lang') isNotNil. 
 
 	
@@ -37,8 +26,7 @@ WollokMainLibraryTest >> testParseWollokLangHasWollokLangPackage [
 { #category : #tests }
 WollokMainLibraryTest >> testParseWollokLangObjectHasCorrectFQN [
 
-	interpreter initializeWithMainLibrary.
-		
+	self interpretExpression: '1'.
 	self assert: (interpreter resolve: 'wollok.lang.Object') fullyQualifiedName asString equals: 'wollok.lang.Object'. 
 
 	

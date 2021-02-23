@@ -11,7 +11,7 @@ WollokParseMainLibraryTest class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokInterpreter libraryRootDirectory.
+	directory := WollokLoader libraryRootDirectory.
 
 	directory allChildren 
 		select: [ :e | #( 'wlk' 'wtest' 'wpgm' ) includes: e extension ]

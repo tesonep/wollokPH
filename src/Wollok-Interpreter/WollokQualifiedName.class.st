@@ -27,6 +27,19 @@ WollokQualifiedName class >> fromString: aString [
 	^ self from: (aString splitOn: '.') asArray
 ]
 
+{ #category : #concatenating }
+WollokQualifiedName >> , aWollokQualifiedName [ 
+	
+	^ self class from: (self segments , aWollokQualifiedName segments)
+]
+
+{ #category : #accessing }
+WollokQualifiedName >> = anotherOne [
+
+	anotherOne species = self species ifFalse: [ ^ false ].
+	^ anotherOne segments = self segments 
+]
+
 { #category : #accessing }
 WollokQualifiedName >> asString [
 	
@@ -56,6 +69,12 @@ WollokQualifiedName >> copyWithoutFirst [
 	aCopy := self copy.
 	aCopy segments: (aCopy segments allButFirst).
 	^ aCopy
+]
+
+{ #category : #accessing }
+WollokQualifiedName >> hash [ 
+	
+	^ 31 + (segments sumNumbers: [ :e | e hash])
 ]
 
 { #category : #accessing }

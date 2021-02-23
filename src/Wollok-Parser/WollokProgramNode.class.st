@@ -14,6 +14,7 @@ Class {
 
 { #category : #generated }
 WollokProgramNode >> acceptVisitor: anAbstractNodeVisitor [
+
 	^ anAbstractNodeVisitor visitProgram: self
 ]
 
