@@ -5,7 +5,8 @@ Class {
 		'name',
 		'superclass',
 		'methods',
-		'variables'
+		'variables',
+		'nativeObject'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -19,6 +20,7 @@ WollokClass class >> defaultSuperclassName [
 { #category : #methods }
 WollokClass >> addMethod: aWollokMethodDeclarationNode [ 
 
+	self haltIf: [ (aWollokMethodDeclarationNode isKindOf: WollokMethodDeclarationNode) not ].
 	self methods add: aWollokMethodDeclarationNode
 ]
 
@@ -36,14 +38,23 @@ WollokClass >> initializeFromAST: aWollokASTNode withName: aName [
 	name := aName.
 	methods := OrderedCollection new.
 	variables := OrderedCollection new.
-	
+
+	aWollokASTNode variables do: [ :e | self addVariable: e ].	
 	aWollokASTNode members do: [ :e | self addMethod: e ].
 ]
 
 { #category : #initialization }
 WollokClass >> initializeStateUsing: aWollokInterpreter [ 
 	
-	"Nothing to initialize here"
+	| superclassName |
+	
+	nativeObject := aWollokInterpreter lookupNativeObjectFor: self.
+	
+	superclassName := ast superclass 
+		ifNil: [ 'wollok.lang.Object' ] 
+		ifNotNil: [ :aFQN | (aFQN identifiers collect: [ :e | e value ]) joinUsing: '.' ].
+		
+	superclass := aWollokInterpreter resolve: superclassName
 ]
 
 { #category : #'instance creation' }
@@ -53,6 +64,17 @@ WollokClass >> instantiateUsing: aWollokInterpreter [
 		wollokClass: self;
 		instanceVariables: #();
 		yourself
+]
+
+{ #category : #'native objects' }
+WollokClass >> lookupNativeObjectForMethod: aString [ 
+
+	^ self methods 
+		detect: [ :aMethod | aMethod name value = aString ]
+		ifFound: [ nativeObject ]
+		ifNone: [ superclass ifNil: [ nil ] ifNotNil: [ superclass lookupNativeObjectForMethod: aString ] ]
+
+
 ]
 
 { #category : #methods }
@@ -81,6 +103,16 @@ WollokClass >> name [
 WollokClass >> name: aValue [
 	
 	name := aValue
+]
+
+{ #category : #accessing }
+WollokClass >> nativeObject [
+	^ nativeObject
+]
+
+{ #category : #accessing }
+WollokClass >> nativeObject: anObject [
+	nativeObject := anObject
 ]
 
 { #category : #resolving }

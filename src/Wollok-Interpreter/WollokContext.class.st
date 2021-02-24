@@ -14,11 +14,27 @@ Class {
 }
 
 { #category : #accessing }
+WollokContext >> arguments [
+	^ arguments
+]
+
+{ #category : #accessing }
 WollokContext >> arguments: value [ 
 
-	| keys |
-	keys := method parameters collect: [ :e | e parameter value ].
-	arguments := Dictionary newFromKeys: keys andValues: value
+	| keys remainingArguments |
+
+	arguments := Dictionary new.
+	remainingArguments := value copy.
+
+	method parameters do: [ :aParameter |
+		aParameter isVarArg 
+			ifNil: [ 
+				arguments at: aParameter parameter value put: remainingArguments first.
+				remainingArguments := remainingArguments allButFirst ] 
+			ifNotNil: [ 
+				"Variable parameter consume all remaining arguments"
+				arguments at: aParameter parameter value put: remainingArguments.
+				remainingArguments := #()]]
 ]
 
 { #category : #testing }
@@ -63,6 +79,11 @@ WollokContext >> resolve: aString [
 	
 	arguments at: aString ifPresent: [ :aValue | ^ aValue ].	
 	^ receiver resolve: aString
+]
+
+{ #category : #accessing }
+WollokContext >> returnValue [
+	^ returnValue
 ]
 
 { #category : #accessing }
