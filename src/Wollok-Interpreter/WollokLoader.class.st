@@ -116,7 +116,6 @@ WollokLoader >> load [
 	rootPackage fileNode: rootFile.
 	self loadPackage: rootPackage.
 	
-	rootPackage initializeStateUsing: interpreter.
 	^ rootPackage
 ]
 

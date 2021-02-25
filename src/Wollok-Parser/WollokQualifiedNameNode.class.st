@@ -13,6 +13,12 @@ WollokQualifiedNameNode >> acceptVisitor: anAbstractNodeVisitor [
 	^ anAbstractNodeVisitor visitQualifiedName: self
 ]
 
+{ #category : #converting }
+WollokQualifiedNameNode >> asWollokQualifiedName [
+	
+	^ ((self identifiers collect: [ :e | e value ]) joinUsing: '.') asWollokQualifiedName 
+]
+
 { #category : #generated }
 WollokQualifiedNameNode >> compositeTokenVariables [
 	^ #(#identifiers #periodTokens)

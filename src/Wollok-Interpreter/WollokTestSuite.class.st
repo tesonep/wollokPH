@@ -14,16 +14,16 @@ WollokTestSuite >> fixture [
 	^ fixture
 ]
 
-{ #category : #initialization }
-WollokTestSuite >> initializeStateUsing: aWollokInterpreter [ 
-
-	tests do: [ :e | e initializeStateUsing: aWollokInterpreter]
-]
-
 { #category : #accessing }
 WollokTestSuite >> name [
 	
 	^ ast name value value
+]
+
+{ #category : #initialization }
+WollokTestSuite >> resolveBindingsUsing: aWollokInterpreter [ 
+
+	tests do: [ :e | e resolveBindingsUsing: aWollokInterpreter]
 ]
 
 { #category : #accessing }

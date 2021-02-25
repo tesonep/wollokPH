@@ -121,6 +121,12 @@ WollokClassNode >> members: anOrderedCollection [
 	self setParents: self members to: self
 ]
 
+{ #category : #accessing }
+WollokClassNode >> methods [
+	
+	^ members select: [ :e | e isKindOf: WollokMethodDeclarationNode ]
+]
+
 { #category : #generated }
 WollokClassNode >> mixed_withToken [
 	^ mixed_withToken

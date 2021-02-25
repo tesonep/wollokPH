@@ -4,14 +4,14 @@ Class {
 	#category : #'Wollok-Interpreter'
 }
 
-{ #category : #initialization }
-WollokTestCase >> initializeStateUsing: aWollokInterpreter [ 
-
-	
-]
-
 { #category : #accessing }
 WollokTestCase >> name [
 	
 	^ ast name value value
+]
+
+{ #category : #initialization }
+WollokTestCase >> resolveBindingsUsing: aWollokInterpreter [ 
+
+	
 ]

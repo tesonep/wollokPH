@@ -3,10 +3,22 @@ Class {
 	#superclass : #WollokObject,
 	#instVars : [
 		'homeContext',
-		'ast'
+		'ast',
+		'arguments'
 	],
 	#category : #'Wollok-Interpreter'
 }
+
+{ #category : #arguments }
+WollokClosure >> argumentAt: aString put: aWollokObject [ 
+	
+	arguments at: aString put: aWollokObject 
+]
+
+{ #category : #accessing }
+WollokClosure >> arguments: aCollection [ 
+	arguments := aCollection
+]
 
 { #category : #accessing }
 WollokClosure >> ast [
@@ -23,4 +35,19 @@ WollokClosure >> ast: aWollokClosureNode [
 WollokClosure >> homeContext: aWollokContext [ 
 	
 	homeContext := aWollokContext
+]
+
+{ #category : #arguments }
+WollokClosure >> initialize [ 
+	
+	super initialize.
+	
+	arguments := Dictionary new
+]
+
+{ #category : #resolving }
+WollokClosure >> resolve: aName [
+
+	arguments at:aName ifPresent: [ :x | ^ x ].
+	^ super resolve: aName
 ]

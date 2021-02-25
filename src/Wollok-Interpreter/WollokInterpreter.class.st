@@ -12,6 +12,17 @@ Class {
 	#category : #'Wollok-Interpreter'
 }
 
+{ #category : #'sending messages' }
+WollokInterpreter >> accessProperty: aPropertyName receiver: aWollokObject arguments: arguments [ 
+
+	"If it has an argument is a setter if not a getter"
+
+	^ arguments size = 1 
+			ifTrue: [ 	aWollokObject resolve: aPropertyName andPut: arguments first.
+								aWollokObject ]
+			ifFalse: [ aWollokObject resolve: aPropertyName ]
+]
+
 { #category : #primitives }
 WollokInterpreter >> activatePrimitiveMethod [
 	
@@ -23,9 +34,76 @@ WollokInterpreter >> activatePrimitiveMethod [
 	
 	nativeObject := context receiver wollokClass lookupNativeObjectForMethod: context method name value.
 	
-	nativeObject ifNil: [ self error: 'Could not find the native object for corresponding native method' ].
+	nativeObject ifNil: [ self error: 'Could not find the native object for ' , context receiver wollokClass fullyQualifiedName asString ].
 	
 	nativeObject activateNativeContext: context.
+]
+
+{ #category : #'visiting - literals' }
+WollokInterpreter >> asWollokBoolean: aBoolean [
+
+	^ aBoolean
+		ifTrue: [ self trueObject ]
+		ifFalse: [ self falseObject ]
+]
+
+{ #category : #'visiting - literals' }
+WollokInterpreter >> asWollokList: elements [
+
+	| listClass |
+	
+	listClass := self currentContext resolve: 'wollok.lang.List'.
+
+	^ WollokObject new 
+		wollokClass: listClass;
+		instanceVariables: {elements};
+		yourself	
+]
+
+{ #category : #'visiting - literals' }
+WollokInterpreter >> asWollokNumber: aNumber [ 
+
+	| numberClass |
+
+	numberClass := self currentContext resolve: 'wollok.lang.Number'.
+
+	^ WollokObject new 
+		wollokClass: numberClass;
+		instanceVariables: {aNumber};
+		yourself
+]
+
+{ #category : #'visiting - literals' }
+WollokInterpreter >> asWollokString: aString [
+
+	| stringClass |
+
+	stringClass := self currentContext resolve: 'wollok.lang.String'.
+
+	^ WollokObject new 
+		wollokClass: stringClass;
+		instanceVariables: {aString};
+		yourself	
+
+
+]
+
+{ #category : #'anonymous classes' }
+WollokInterpreter >> createAnonymousClassForObjectLiteral: aWollokObjectLiteralNode [ 
+
+	| superclassName superclass |
+	
+	superclassName := aWollokObjectLiteralNode superclass ifNil: [WollokClass defaultSuperclassName].
+
+	superclass := self currentContext resolve: superclassName.
+
+	^ WollokClass new 
+		initializeFromAST: aWollokObjectLiteralNode withName: '_AnonymousClass';
+		parent: self currentContext;
+		superclass: superclass;
+		resolveBindingsUsing: self;
+		initializeStateUsing: self;
+		yourself
 ]
 
 { #category : #'anonymous classes' }
@@ -44,29 +122,32 @@ WollokInterpreter >> createAnonymousClasssForNamedObjectLiteral: aWollokObjectLi
 		yourself
 ]
 
-{ #category : #'anonymous classes' }
-WollokInterpreter >> createAnonymousClasssForObjectLiteral: aWollokObjectLiteralNode [ 
-
-	| superclassName superclass |
-	
-	superclassName := aWollokObjectLiteralNode superclass ifNil: [WollokClass defaultSuperclassName].
-
-	superclass := self currentContext resolve: superclassName.
-
-	^ WollokClass new 
-		name: '_AnonymousClass';
-		ast: aWollokObjectLiteralNode;
-		parent: self currentContext;
-		superclass: superclass;
-		yourself
-]
-
 { #category : #'context creation' }
 WollokInterpreter >> currentContext [
 
 	contextStack ifEmpty: [ ^ nil ].
 
 	^ contextStack top
+]
+
+{ #category : #'private - variadic arguments' }
+WollokInterpreter >> distributeArguments: initialArguments intoParameters: parameters [ 
+	| remainingArguments arguments |
+
+	arguments := Dictionary new.
+	remainingArguments := initialArguments copy.
+
+	parameters do: [ :aParameter |
+		aParameter isVarArg 
+			ifNil: [ 
+				arguments at: aParameter parameter value put: remainingArguments first.
+				remainingArguments := remainingArguments allButFirst ] 
+			ifNotNil: [ 
+				"Variable parameter consume all remaining arguments"
+				arguments at: aParameter parameter value put: (self asWollokList: remainingArguments).
+				remainingArguments := #()]].
+		
+	^ arguments
 ]
 
 { #category : #accessing }
@@ -80,6 +161,28 @@ WollokInterpreter >> falseObject [
 				wollokClass: booleanClass;
 				instanceVariables: {false};
 				yourself ]
+]
+
+{ #category : #'private - visiting' }
+WollokInterpreter >> handleDoubleAnd: aNode [ 
+	
+	"This special case implements the short-circuit in the and operation"
+	| left |
+	
+	left := aNode leftOperand acceptVisitor: self.
+
+	^ self asWollokBoolean: (left asBoolean and: [ (aNode rightOperand acceptVisitor: self) asBoolean ])
+]
+
+{ #category : #'private - visiting' }
+WollokInterpreter >> handleDoubleOr: aNode [ 
+
+	"This special case implements the short-circuit in the or operation"
+	| left |
+	
+	left := aNode leftOperand acceptVisitor: self.
+
+	^ self asWollokBoolean: (left asBoolean or: [ (aNode rightOperand acceptVisitor: self) asBoolean ])
 ]
 
 { #category : #initialization }
@@ -98,6 +201,9 @@ WollokInterpreter >> interpretProgram: aWollokFileNode [
 		interpreter: self;
 		rootFile: aWollokFileNode;
 		load.
+
+	rootPackage resolveBindingsUsing: self.
+	rootPackage initializeStateUsing: self.
 
 	self pushContext: (WollokContext new
 		sender: self currentContext;
@@ -142,12 +248,15 @@ WollokInterpreter >> interpretTest: aWollokTestCase storingResultsIn: aWollokTes
 { #category : #interpreting }
 WollokInterpreter >> interpretTests: aWollokFileNode [ 
 
-	| lastValue wollokTestResult |
+	| wollokTestResult |
 	
 	rootPackage := WollokLoader new
 		interpreter: self;
 		rootFile: aWollokFileNode;
 		load.
+
+	rootPackage resolveBindingsUsing: self.
+	rootPackage initializeStateUsing: self.
 
 	wollokTestResult := WollokTestResult new.
 
@@ -169,19 +278,6 @@ WollokInterpreter >> lookupNativeObjectFor: aWollokClass [
 		interpreter: self;
 		yourself
 		
-]
-
-{ #category : #'visiting - literals' }
-WollokInterpreter >> newWollokNumberWith: aNumber [ 
-
-	| numberClass |
-
-	numberClass := self currentContext resolve: 'wollok.lang.Number'.
-
-	^ WollokObject new 
-		wollokClass: numberClass;
-		instanceVariables: {aNumber};
-		yourself
 ]
 
 { #category : #accessing }
@@ -213,14 +309,16 @@ WollokInterpreter >> pushContext: aCreationContext [
 { #category : #'context creation' }
 WollokInterpreter >> pushContextForSelector: aSelector receiver: aReceiver method: aMethod withArguments: aCollection [ 
 	
-	| context |
+	| context arguments |
+	
+	arguments := self distributeArguments: aCollection intoParameters: aMethod parameters.
 	
 	context := WollokContext new
 		sender: self currentContext;
 		method: aMethod;
 		receiver: aReceiver;
 		selector: aSelector;
-		arguments: aCollection;
+		arguments: arguments;
 		returnValue: self voidObject;
 		yourself.
 		
@@ -244,7 +342,7 @@ WollokInterpreter >> pushInitializationContextFor: aWollokElement [
 { #category : #state }
 WollokInterpreter >> resetInterpreterState [
 
-	
+	rootPackage initializeStateUsing: self
 ]
 
 { #category : #resolving }
@@ -271,7 +369,13 @@ WollokInterpreter >> rootPaths [
 WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: arguments [ 
 
 	| aMethod context |
-	aMethod := aReceiver wollokClass lookupSelector: aSelector.
+	
+	(aReceiver wollokClass isProperty: aSelector)
+		ifTrue: [ ^ self accessProperty: aSelector receiver: aReceiver arguments: arguments ].
+	
+	aMethod := aReceiver wollokClass 
+		lookupSelector: aSelector 
+		usingArguments: arguments size.
 	
 	aMethod ifNil: [ self error: 'MNU' ].
 	
@@ -284,9 +388,7 @@ WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: argumen
 	aMethod native ifNil: [ 		
 		aMethod expressionReturns 
 			ifNotNil: [ context returnValue: (aMethod expression acceptVisitor: self)]
-			ifNil:[ 
-				aMethod expression expressions do: [ :aStatement | 
-					context hasReturned ifFalse: [ aStatement acceptVisitor: self ]]]]
+			ifNil:[ aMethod expression acceptVisitor: self]]
 		ifNotNil: [ self activatePrimitiveMethod ].
 			
 	self popContext.
@@ -308,25 +410,53 @@ WollokInterpreter >> trueObject [
 ]
 
 { #category : #visiting }
-WollokInterpreter >> visitBinaryOperation: aWollokBinaryOperationNode [ 
+WollokInterpreter >> visitAssignment: aNode [ 
+	
+	| value |
+	
+	value := aNode value acceptVisitor: self.
+	
+	self currentContext resolve: 'modified' andPut: value.
+	^ value
+]
 
-	| left right |
+{ #category : #visiting }
+WollokInterpreter >> visitBinaryOperation: aNode [ 
 
-	left := aWollokBinaryOperationNode leftOperand acceptVisitor: self.
-	right := aWollokBinaryOperationNode rightOperand acceptVisitor: self.	
+	| left right operator |
+
+	operator := aNode operation value.
+	
+	operator asSymbol = #&& ifTrue: [ ^ self handleDoubleAnd: aNode ].
+	operator asSymbol = #|| ifTrue: [ ^ self handleDoubleOr: aNode ].
+
+	left := aNode leftOperand acceptVisitor: self.
+	right := aNode rightOperand acceptVisitor: self.	
 	
 	^ self 
-		sendMessage: aWollokBinaryOperationNode operation value
+		sendMessage: operator
 		to: left 
 		withArguments: { right }
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitBlockExpression: aNode [ 
+
+	| lastExpression |
+	lastExpression := self voidObject.
+
+	aNode expressions do: [ :aStatement | 
+					self currentContext hasReturned 
+						ifFalse: [ lastExpression := aStatement acceptVisitor: self ]].
+					
+	^ lastExpression
 ]
 
 { #category : #'visiting - literals' }
 WollokInterpreter >> visitBooleanLiteral: aWollokBooleanLiteralNode [ 
 
-	^ (aWollokBooleanLiteralNode value value = 'true') 
-		ifTrue: [ self trueObject ]
-		ifFalse: [ self falseObject ]
+	^ self asWollokBoolean: (aWollokBooleanLiteralNode value value = 'true') 
+
 ]
 
 { #category : #visiting }
@@ -343,6 +473,19 @@ WollokInterpreter >> visitClosure: aWollokClosureNode [
 ]
 
 { #category : #visiting }
+WollokInterpreter >> visitConstructorCall: aWollokConstructorCallNode [ 
+
+	| aClass arguments |
+	aClass := self resolve: aWollokConstructorCallNode classRef asWollokQualifiedName.
+
+	arguments := aWollokConstructorCallNode argumentList 
+		ifNil: [Dictionary new] 
+		ifNotNil: [self notYetImplemented ].
+
+	^ aClass instantiateUsing: self with: arguments
+]
+
+{ #category : #visiting }
 WollokInterpreter >> visitIfExpression: aWollokIfExpressionNode [ 
 
 	| conditionResult |
@@ -352,6 +495,15 @@ WollokInterpreter >> visitIfExpression: aWollokIfExpressionNode [
 		ifTrue: [ aWollokIfExpressionNode then acceptVisitor: self ]
 		ifFalse: [ aWollokIfExpressionNode else 
 			ifNotNil: [ :elseExpression | elseExpression acceptVisitor: self ] ]
+]
+
+{ #category : #'visiting - literals' }
+WollokInterpreter >> visitListLiteral: aNode [ 
+
+	| elements |
+	
+	elements := aNode elements collect: [ :e | e acceptVisitor: self ].
+	^ self asWollokList: elements
 ]
 
 { #category : #visiting }
@@ -378,14 +530,14 @@ WollokInterpreter >> visitNumberLiteral: aWollokNumberLiteralNode [
 
 	aNumber := Number readFrom: aWollokNumberLiteralNode value value.
 
-	^ self newWollokNumberWith: aNumber
+	^ self asWollokNumber: aNumber
 ]
 
 { #category : #'visiting - literals' }
 WollokInterpreter >> visitObjectLiteral: aWollokObjectLiteralNode [
 
 	| anAnonymousClass |
-	anAnonymousClass := self createAnonymousClasssForObjectLiteral: aWollokObjectLiteralNode.
+	anAnonymousClass := self createAnonymousClassForObjectLiteral: aWollokObjectLiteralNode.
 	^ anAnonymousClass instantiateUsing: self.
 
 ]
@@ -397,6 +549,17 @@ WollokInterpreter >> visitParenthesizedExpression: aWollokParenthesizedExpressio
 ]
 
 { #category : #visiting }
+WollokInterpreter >> visitReturnExpression: aNode [ 
+	
+	self currentContext 
+		returnValue: (aNode expression acceptVisitor: self).
+		
+	self currentContext beReturned.
+	
+	^ self currentContext returnValue
+]
+
+{ #category : #visiting }
 WollokInterpreter >> visitSelf: aWollokSelfNode [ 
 	
 	^ self currentContext receiver
@@ -405,14 +568,9 @@ WollokInterpreter >> visitSelf: aWollokSelfNode [
 { #category : #'visiting - literals' }
 WollokInterpreter >> visitStringLiteral: aWollokStringLiteralNode [ 
 
-	| stringClass |
+	^ self asWollokString: (aWollokStringLiteralNode value value copyWithout: $").
 
-	stringClass := self currentContext resolve: 'wollok.lang.String'.
 
-	^ WollokObject new 
-		wollokClass: stringClass;
-		instanceVariables: {aWollokStringLiteralNode value value copyWithout: $"};
-		yourself	
 ]
 
 { #category : #visiting }
@@ -433,6 +591,19 @@ WollokInterpreter >> visitUnaryOperation: aWollokUnaryOperationNode [
 WollokInterpreter >> visitVariable: aWollokVariableNode [ 
 
 	^ (self currentContext resolve: aWollokVariableNode name value) assignedValue
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitVariableDeclaration: aNode [ 
+
+	| aValue |
+	aValue := aNode right acceptVisitor: self.
+
+	self currentContext 
+		declareVariable: aNode variable name value
+		withValue: aValue.
+		
+	^ aValue
 ]
 
 { #category : #accessing }

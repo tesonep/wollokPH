@@ -119,15 +119,10 @@ WollokPackage >> initialize [
 	suites := OrderedCollection new.
 ]
 
-{ #category : #initialization }
-WollokPackage >> initializeStateUsing: aWollokInterpreter [
-
-	aWollokInterpreter pushInitializationContextFor: self.
-
-	children do: [ :aChildren | 
-		aChildren initializeStateUsing: aWollokInterpreter ].
+{ #category : #'state initialization' }
+WollokPackage >> initializeStateUsing: anInterpreter [ 
 	
-	aWollokInterpreter popContext.
+	children do: [ :aChild | aChild initializeStateUsing: anInterpreter ]
 ]
 
 { #category : #accessing }
@@ -174,6 +169,17 @@ WollokPackage >> resolve: aStringOrQualifiedName [
 		(self doResolve: anImport , qualifiedName) ifNotNil: [:aValue | ^aValue]].
 	
 	self error: 'Could not resolve ' , qualifiedName printString
+]
+
+{ #category : #initialization }
+WollokPackage >> resolveBindingsUsing: aWollokInterpreter [
+
+	aWollokInterpreter pushInitializationContextFor: self.
+
+	children do: [ :aChildren | 
+		aChildren resolveBindingsUsing: aWollokInterpreter ].
+	
+	aWollokInterpreter popContext.
 ]
 
 { #category : #accessing }

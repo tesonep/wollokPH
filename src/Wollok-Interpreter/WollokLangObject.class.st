@@ -21,5 +21,5 @@ WollokLangObject >> checkNotNull: aReceiver with: aMaybeNull with: variableName 
 { #category : #'native methods' }
 WollokLangObject >> identity: aWollokObject [ 
 	
-	^ interpreter newWollokNumberWith: aWollokObject hash
+	^ interpreter asWollokNumber: aWollokObject hash
 ]

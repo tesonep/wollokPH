@@ -13,11 +13,11 @@ WollokLangClosure class >> wollokClassName [
 { #category : #'native methods' }
 WollokLangClosure >> apply: aWollokClosure with: aCollection [ 
 
-	| lastExpression |
-	lastExpression := interpreter voidObject.
+	| arguments |
+	
+	arguments := interpreter distributeArguments: aCollection asCollection intoParameters: aWollokClosure ast parameters.
+	aWollokClosure arguments: arguments.
 
-	aWollokClosure ast expression expressions do: [:e | 
-			lastExpression := e acceptVisitor: interpreter ].
-		
-	^ lastExpression
+	^ aWollokClosure ast expression acceptVisitor: interpreter.
+
 ]

@@ -16,9 +16,21 @@ WollokObject >> asBoolean [
 ]
 
 { #category : #converting }
+WollokObject >> asCollection [
+	
+	^ instanceVariables at: 1 
+]
+
+{ #category : #converting }
 WollokObject >> asNumber [
 	
 	self assert: (instanceVariables at: 1) isNumber.
+	^ instanceVariables at: 1
+]
+
+{ #category : #converting }
+WollokObject >> asPharoString [
+	
 	^ instanceVariables at: 1
 ]
 
@@ -26,6 +38,11 @@ WollokObject >> asNumber [
 WollokObject >> assignedValue [
 	
 	^ self
+]
+
+{ #category : #accessing }
+WollokObject >> instanceVariables [
+	^ instanceVariables
 ]
 
 { #category : #accessing }
@@ -37,6 +54,12 @@ WollokObject >> instanceVariables: aCollection [
 WollokObject >> resolve: aString [ 
 	
 	^ wollokClass resolve: aString inInstance: self.
+]
+
+{ #category : #resolving }
+WollokObject >> resolve: aName andPut: aValue [ 
+
+	^ wollokClass resolve: aName inInstance: self andPut: aValue
 ]
 
 { #category : #accessing }

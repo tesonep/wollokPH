@@ -8,7 +8,8 @@ Class {
 		'method',
 		'arguments',
 		'hasReturned',
-		'returnValue'
+		'returnValue',
+		'variables'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -21,20 +22,19 @@ WollokContext >> arguments [
 { #category : #accessing }
 WollokContext >> arguments: value [ 
 
-	| keys remainingArguments |
+	arguments := value
+]
 
-	arguments := Dictionary new.
-	remainingArguments := value copy.
+{ #category : #accessing }
+WollokContext >> beReturned [
+	
+	hasReturned := true
+]
 
-	method parameters do: [ :aParameter |
-		aParameter isVarArg 
-			ifNil: [ 
-				arguments at: aParameter parameter value put: remainingArguments first.
-				remainingArguments := remainingArguments allButFirst ] 
-			ifNotNil: [ 
-				"Variable parameter consume all remaining arguments"
-				arguments at: aParameter parameter value put: remainingArguments.
-				remainingArguments := #()]]
+{ #category : #variables }
+WollokContext >> declareVariable: aString withValue: aWollokObject [ 
+
+	variables at: aString put: aWollokObject 
 ]
 
 { #category : #testing }
@@ -50,6 +50,7 @@ WollokContext >> initialize [
 
 	hasReturned := false.
 	arguments := Dictionary new.
+	variables := Dictionary new.
 ]
 
 { #category : #accessing }
@@ -62,6 +63,12 @@ WollokContext >> method: aWollokMethod [
 
 	method := aWollokMethod
 	
+]
+
+{ #category : #accessing }
+WollokContext >> package [
+	
+	^ self receiver package
 ]
 
 { #category : #accessing }
@@ -78,7 +85,18 @@ WollokContext >> receiver: anObject [
 WollokContext >> resolve: aString [ 
 	
 	arguments at: aString ifPresent: [ :aValue | ^ aValue ].	
+	variables at: aString ifPresent: [ :aValue | ^ aValue ].	
+
 	^ receiver resolve: aString
+]
+
+{ #category : #resolving }
+WollokContext >> resolve: aName andPut: aValue [ 
+	
+	(arguments includesKey: aName) 
+		ifTrue: [ ^ arguments at: aName put: aValue ].
+		
+	^ receiver resolve: aName andPut: aValue 
 ]
 
 { #category : #accessing }

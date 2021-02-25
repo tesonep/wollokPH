@@ -206,3 +206,9 @@ WollokObjectLiteralNode >> superclassParameters: aWollokAbstractNodeNode [
 WollokObjectLiteralNode >> tokenVariables [
 	^ #(#objectToken #leftBraceToken #rightBraceToken #mixed_withToken #inheritsToken #leftParenToken #rightParenToken)
 ]
+
+{ #category : #accessing }
+WollokObjectLiteralNode >> variables [
+	
+	^ members select: [ :e | e isKindOf: WollokVariableDeclarationNode  ]
+]
