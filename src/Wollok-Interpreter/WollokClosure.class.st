@@ -49,5 +49,5 @@ WollokClosure >> initialize [
 WollokClosure >> resolve: aName [
 
 	arguments at:aName ifPresent: [ :x | ^ x ].
-	^ super resolve: aName
+	^ homeContext resolve: aName
 ]

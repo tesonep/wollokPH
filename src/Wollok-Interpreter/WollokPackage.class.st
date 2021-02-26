@@ -8,7 +8,8 @@ Class {
 		'fileNode',
 		'imports',
 		'main',
-		'suites'
+		'suites',
+		'defaultSuite'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -61,6 +62,15 @@ WollokPackage >> at: aString put: aValue [
 	
 	aValue parent: self.
 	^ children at: aString put: aValue
+]
+
+{ #category : #accessing }
+WollokPackage >> defaultSuite [
+	
+	^ defaultSuite ifNil: [ 
+			defaultSuite := WollokTestSuite new 
+				name: 'defaultTestSuite';
+				yourself ]
 ]
 
 { #category : #resolving }
@@ -122,7 +132,9 @@ WollokPackage >> initialize [
 { #category : #'state initialization' }
 WollokPackage >> initializeStateUsing: anInterpreter [ 
 	
-	children do: [ :aChild | aChild initializeStateUsing: anInterpreter ]
+	anInterpreter pushInitializationContextFor: self.
+	children do: [ :aChild | aChild initializeStateUsing: anInterpreter ].
+	anInterpreter popContext
 ]
 
 { #category : #accessing }
@@ -154,6 +166,12 @@ WollokPackage >> package [
 WollokPackage >> parent: aPackage [ 
 
 	parent := aPackage 
+]
+
+{ #category : #state }
+WollokPackage >> resetState [
+	
+	children do: [ :e | e resetState ]
 ]
 
 { #category : #resolving }

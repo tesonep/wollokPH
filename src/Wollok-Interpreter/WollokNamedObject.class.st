@@ -3,7 +3,8 @@ Class {
 	#superclass : #WollokRuntimeElement,
 	#instVars : [
 		'object',
-		'wollokClass'
+		'wollokClass',
+		'interpreter'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -11,13 +12,22 @@ Class {
 { #category : #accessing }
 WollokNamedObject >> assignedValue [
 	
-	^ object
+	^ object ifNil: [ 
+			object := wollokClass basicInstantiate: interpreter.
+		
+			wollokClass
+				runConstructorOn: object 
+				parameters: Dictionary new
+				allVariables: wollokClass allVariables
+				interpreter: interpreter.
+				
+			object]
 ]
 
 { #category : #initialization }
 WollokNamedObject >> initializeStateUsing: anInterpreter [ 
 	
-	object := wollokClass instantiateUsing: anInterpreter
+	self assignedValue
 ]
 
 { #category : #accessing }
@@ -26,8 +36,15 @@ WollokNamedObject >> name [
 	^ self ast name value
 ]
 
-{ #category : #initialization }
-WollokNamedObject >> resolveBindingsUsing: aWollokInterpreter [ 
+{ #category : #state }
+WollokNamedObject >> resetState [
 	
-	wollokClass := aWollokInterpreter createAnonymousClasssForNamedObjectLiteral: ast
+	object := nil
+]
+
+{ #category : #initialization }
+WollokNamedObject >> resolveBindingsUsing: anInterpreter [ 
+	
+	interpreter := anInterpreter.
+	wollokClass := anInterpreter createAnonymousClasssForNamedObjectLiteral: ast
 ]

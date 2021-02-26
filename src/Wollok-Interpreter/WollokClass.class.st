@@ -39,6 +39,17 @@ WollokClass >> allVariables [
 	^ inherited , variables
 ]
 
+{ #category : #'instance creation' }
+WollokClass >> basicInstantiate: aWollokInterpreter [
+
+	^ WollokObject new 
+		wollokClass: self;
+		instanceVariables: (Array new: self allVariables size);
+		yourself.
+		
+
+]
+
 { #category : #initialization }
 WollokClass >> initializeFromAST: aWollokASTNode [
 	
@@ -73,19 +84,14 @@ WollokClass >> instantiateUsing: aWollokInterpreter [
 { #category : #'instance creation' }
 WollokClass >> instantiateUsing: aWollokInterpreter with: parameters [
 
-	| anInstance allVariables |
+	| anInstance |
 
-	allVariables := self allVariables.
-
-	anInstance := WollokObject new 
-		wollokClass: self;
-		instanceVariables: (Array new: allVariables size);
-		yourself.
+	anInstance := self basicInstantiate: aWollokInterpreter.
 		
 	self 
 		runConstructorOn: anInstance 
 		parameters: parameters
-		allVariables: allVariables
+		allVariables: self allVariables
 		interpreter: aWollokInterpreter.
 	
 	^ anInstance
@@ -178,6 +184,21 @@ WollokClass >> nativeObject [
 { #category : #accessing }
 WollokClass >> nativeObject: anObject [
 	nativeObject := anObject
+]
+
+{ #category : #printing }
+WollokClass >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream nextPut: $(.
+	aStream print: self fullyQualifiedName asString.
+	aStream nextPut: $).
+]
+
+{ #category : #state }
+WollokClass >> resetState [
+
+	
 ]
 
 { #category : #resolving }

@@ -54,7 +54,7 @@ WollokInterpreter >> asWollokList: elements [
 	
 	listClass := self currentContext resolve: 'wollok.lang.List'.
 
-	^ WollokObject new 
+	^ WollokInmediate new 
 		wollokClass: listClass;
 		instanceVariables: {elements};
 		yourself	
@@ -67,7 +67,7 @@ WollokInterpreter >> asWollokNumber: aNumber [
 
 	numberClass := self currentContext resolve: 'wollok.lang.Number'.
 
-	^ WollokObject new 
+	^ WollokInmediate new 
 		wollokClass: numberClass;
 		instanceVariables: {aNumber};
 		yourself
@@ -80,7 +80,7 @@ WollokInterpreter >> asWollokString: aString [
 
 	stringClass := self currentContext resolve: 'wollok.lang.String'.
 
-	^ WollokObject new 
+	^ WollokInmediate new 
 		wollokClass: stringClass;
 		instanceVariables: {aString};
 		yourself	
@@ -157,7 +157,7 @@ WollokInterpreter >> falseObject [
 	
 	^ falseObject ifNil: [ 
 			booleanClass := self currentContext resolve: 'wollok.lang.Boolean'.
-		  falseObject := WollokObject new 
+		  falseObject := WollokInmediate new 
 				wollokClass: booleanClass;
 				instanceVariables: {false};
 				yourself ]
@@ -168,7 +168,7 @@ WollokInterpreter >> handleDoubleAnd: aNode [
 	
 	"This special case implements the short-circuit in the and operation"
 	| left |
-	
+
 	left := aNode leftOperand acceptVisitor: self.
 
 	^ self asWollokBoolean: (left asBoolean and: [ (aNode rightOperand acceptVisitor: self) asBoolean ])
@@ -342,7 +342,9 @@ WollokInterpreter >> pushInitializationContextFor: aWollokElement [
 { #category : #state }
 WollokInterpreter >> resetInterpreterState [
 
-	rootPackage initializeStateUsing: self
+	rootPackage 
+		resetState;	
+		initializeStateUsing: self
 ]
 
 { #category : #resolving }
@@ -403,7 +405,7 @@ WollokInterpreter >> trueObject [
 	
 	^ trueObject ifNil: [ 
 			booleanClass := self currentContext resolve: 'wollok.lang.Boolean'.
-		  trueObject := WollokObject new 
+		  trueObject := WollokInmediate new 
 				wollokClass: booleanClass;
 				instanceVariables: {true};
 				yourself ]
@@ -416,7 +418,7 @@ WollokInterpreter >> visitAssignment: aNode [
 	
 	value := aNode value acceptVisitor: self.
 	
-	self currentContext resolve: 'modified' andPut: value.
+	self currentContext resolve: aNode variable name value andPut: value.
 	^ value
 ]
 
@@ -480,7 +482,10 @@ WollokInterpreter >> visitConstructorCall: aWollokConstructorCallNode [
 
 	arguments := aWollokConstructorCallNode argumentList 
 		ifNil: [Dictionary new] 
-		ifNotNil: [self notYetImplemented ].
+		ifNotNil: [ 
+			WollokConstructorArgumentVisitor 
+				extractArguments: aWollokConstructorCallNode argumentList
+				using: self  ].
 
 	^ aClass instantiateUsing: self with: arguments
 ]
@@ -576,13 +581,16 @@ WollokInterpreter >> visitStringLiteral: aWollokStringLiteralNode [
 { #category : #visiting }
 WollokInterpreter >> visitUnaryOperation: aWollokUnaryOperationNode [ 
 
-	| operator |
+	| operator selector |
+	
 	operator := aWollokUnaryOperationNode operation value.
 	
-	operator = '!' ifFalse: [ self halt ].
+	selector := (Dictionary newFromPairs: {	
+		'!'. 'negate'.
+		'-'. 'invert' }) at: operator.
 
 	^ self 
-		sendMessage: 'negate' 
+		sendMessage: selector
 		to: (aWollokUnaryOperationNode rightOperand acceptVisitor: self) 
 		withArguments: #().
 ]

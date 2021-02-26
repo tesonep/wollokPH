@@ -31,11 +31,15 @@ WollokNativeObject >> convertSymbolSelector: aSymbol [
 	aSymbol isBinary ifFalse: [ ^ aSymbol ].
 	
 	^ {
-			#'==' -> #equals.
+			#'==' 	-> #equals.
 			#'===' -> #doubleEquals.
-			#+ -> #add.
-			#< -> #lowerThan.
-			#> -> #greaterThan } asDictionary at: aSymbol
+			#/			-> #division.
+			#* 		-> #multiply.
+			#+ 		-> #add.
+			#-			-> #minus.
+			#**		-> #raiseTo.
+			#< 		-> #lowerThan.
+			#> 		-> #greaterThan } asDictionary at: aSymbol
 ]
 
 { #category : #accessing }

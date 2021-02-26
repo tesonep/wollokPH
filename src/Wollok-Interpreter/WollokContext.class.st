@@ -95,6 +95,9 @@ WollokContext >> resolve: aName andPut: aValue [
 	
 	(arguments includesKey: aName) 
 		ifTrue: [ ^ arguments at: aName put: aValue ].
+
+	(variables includesKey: aName) 
+		ifTrue: [ ^ variables at: aName put: aValue ].
 		
 	^ receiver resolve: aName andPut: aValue 
 ]

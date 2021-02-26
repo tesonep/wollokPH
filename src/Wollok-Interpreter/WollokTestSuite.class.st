@@ -3,10 +3,18 @@ Class {
 	#superclass : #WollokRuntimeElement,
 	#instVars : [
 		'tests',
-		'fixture'
+		'fixture',
+		'name'
 	],
 	#category : #'Wollok-Interpreter'
 }
+
+{ #category : #children }
+WollokTestSuite >> addTest: aWollokTestCase [ 
+	
+	tests add: aWollokTestCase.
+	aWollokTestCase parent: self
+]
 
 { #category : #accessing }
 WollokTestSuite >> fixture [
@@ -15,9 +23,22 @@ WollokTestSuite >> fixture [
 ]
 
 { #category : #accessing }
+WollokTestSuite >> initialize [ 
+	
+	super initialize.
+	tests := OrderedCollection new
+]
+
+{ #category : #accessing }
 WollokTestSuite >> name [
 	
-	^ ast name value value
+	^ name ifNil: [ ast name value value]
+]
+
+{ #category : #accessing }
+WollokTestSuite >> name: aValue [
+
+	name := aValue
 ]
 
 { #category : #initialization }

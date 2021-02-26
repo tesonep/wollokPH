@@ -22,6 +22,15 @@ WollokObject >> asCollection [
 ]
 
 { #category : #converting }
+WollokObject >> asDate [
+
+	^ Date
+		newDay: (self instanceVariables at: 1) asNumber asInteger
+		month: (self instanceVariables at: 2) asNumber asInteger
+		year: (self instanceVariables at: 3) asNumber asInteger
+]
+
+{ #category : #converting }
 WollokObject >> asNumber [
 	
 	self assert: (instanceVariables at: 1) isNumber.
