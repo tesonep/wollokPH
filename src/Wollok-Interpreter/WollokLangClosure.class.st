@@ -16,8 +16,14 @@ WollokLangClosure >> apply: aWollokClosure with: aCollection [
 	| arguments |
 	
 	arguments := interpreter distributeArguments: aCollection asCollection intoParameters: aWollokClosure ast parameters.
-	aWollokClosure arguments: arguments.
+	aWollokClosure arguments addAll: arguments.
 
 	^ aWollokClosure ast expression acceptVisitor: interpreter.
 
+]
+
+{ #category : #'native methods' }
+WollokLangClosure >> toString: aWollokClosure [ 
+	
+	^ interpreter asWollokString: aWollokClosure ast source
 ]

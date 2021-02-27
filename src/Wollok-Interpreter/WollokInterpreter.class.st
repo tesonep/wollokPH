@@ -23,7 +23,7 @@ WollokInterpreter >> accessProperty: aPropertyName receiver: aWollokObject argum
 			ifFalse: [ aWollokObject resolve: aPropertyName ]
 ]
 
-{ #category : #primitives }
+{ #category : #'native objects' }
 WollokInterpreter >> activatePrimitiveMethod [
 	
 	| context nativeObject |
@@ -140,12 +140,17 @@ WollokInterpreter >> distributeArguments: initialArguments intoParameters: param
 	parameters do: [ :aParameter |
 		aParameter isVarArg 
 			ifNil: [ 
+				remainingArguments size < 1 
+					ifTrue:[self throwExceptionWithMessage: 'Not enough arguments'].
+
 				arguments at: aParameter parameter value put: remainingArguments first.
 				remainingArguments := remainingArguments allButFirst ] 
 			ifNotNil: [ 
 				"Variable parameter consume all remaining arguments"
 				arguments at: aParameter parameter value put: (self asWollokList: remainingArguments).
 				remainingArguments := #()]].
+		
+	remainingArguments size = 0 ifFalse: [ self throwExceptionWithMessage: 'Too many arguments' ].
 		
 	^ arguments
 ]
@@ -192,7 +197,7 @@ WollokInterpreter >> initialize [
 	contextStack := Stack new
 ]
 
-{ #category : #interpreting }
+{ #category : #'api - interpreting' }
 WollokInterpreter >> interpretProgram: aWollokFileNode [ 
 
 	| lastValue |
@@ -220,7 +225,7 @@ WollokInterpreter >> interpretProgram: aWollokFileNode [
 	^ lastValue
 ]
 
-{ #category : #interpreting }
+{ #category : #'api - interpreting' }
 WollokInterpreter >> interpretSuite: aWollokTestSuite storingResultsIn: aWollokTestResult [ 
 
 	aWollokTestSuite tests do: [ :aTest |
@@ -229,7 +234,7 @@ WollokInterpreter >> interpretSuite: aWollokTestSuite storingResultsIn: aWollokT
 		self resetInterpreterState ]
 ]
 
-{ #category : #interpreting }
+{ #category : #'api - interpreting' }
 WollokInterpreter >> interpretTest: aWollokTestCase storingResultsIn: aWollokTestResult [ 
 
 	self pushContext: (WollokContext new
@@ -245,7 +250,7 @@ WollokInterpreter >> interpretTest: aWollokTestCase storingResultsIn: aWollokTes
 	aWollokTestResult recordSuccessful: aWollokTestCase.
 ]
 
-{ #category : #interpreting }
+{ #category : #'api - interpreting' }
 WollokInterpreter >> interpretTests: aWollokFileNode [ 
 
 	| wollokTestResult |
@@ -298,6 +303,13 @@ WollokInterpreter >> nullObject [
 WollokInterpreter >> popContext [
 	
 	contextStack pop
+]
+
+{ #category : #'context creation' }
+WollokInterpreter >> popContextUntil: aWollokContext [ 
+	
+	[ self currentContext = aWollokContext ]
+		whileFalse: [ self popContext ].
 ]
 
 { #category : #'context creation' }
@@ -370,7 +382,7 @@ WollokInterpreter >> rootPaths [
 { #category : #'sending messages' }
 WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: arguments [ 
 
-	| aMethod context |
+	| aMethod context argumentsToUse selectorToUse |
 	
 	(aReceiver wollokClass isProperty: aSelector)
 		ifTrue: [ ^ self accessProperty: aSelector receiver: aReceiver arguments: arguments ].
@@ -379,12 +391,21 @@ WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: argumen
 		lookupSelector: aSelector 
 		usingArguments: arguments size.
 	
-	aMethod ifNil: [ self error: 'MNU' ].
+	argumentsToUse := arguments.
+	selectorToUse := aSelector.
 	
-	context := self pushContextForSelector: aSelector 
+	aMethod ifNil: [ "Handles MNU"
+		aMethod := aReceiver wollokClass
+			lookupSelector: 'messageNotUnderstood'
+			usingArguments: 2.
+			
+		selectorToUse := 'messageNotUnderstood'.
+		argumentsToUse := { self asWollokString: aSelector. self asWollokList: arguments }].
+	
+	context := self pushContextForSelector: selectorToUse 
 			receiver: aReceiver
 			method: aMethod
-			withArguments: arguments.
+			withArguments: argumentsToUse.
 	
 	
 	aMethod native ifNil: [ 		
@@ -396,6 +417,39 @@ WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: argumen
 	self popContext.
 	
 	^ context returnValue.
+]
+
+{ #category : #exceptions }
+WollokInterpreter >> throwException: aWollokObject [ 
+
+	"We add another inst. var. only accessible to the interpreter and native code with the contexts"
+	aWollokObject instanceVariables: (aWollokObject instanceVariables copyWith: self currentContext copyToTop).
+	
+	WollokError new
+		messageText: (aWollokObject instanceVariables at: 1) asString;
+		wollokException: aWollokObject;
+		signal.
+]
+
+{ #category : #exceptions }
+WollokInterpreter >> throwExceptionWithMessage: aString [ 
+	
+	self throwExceptionWithMessage: aString exceptionClassName: 'wollok.lang.Exception'
+]
+
+{ #category : #signalling }
+WollokInterpreter >> throwExceptionWithMessage: aWollokString exceptionClassName: aString [
+	
+	| exceptionClass anException |
+	
+	exceptionClass := self currentContext resolve: aString.
+
+	anException := WollokObject new 
+		wollokClass: exceptionClass;
+		instanceVariables: {aWollokString. nullObject };
+		yourself.
+		
+	self throwException: anException
 ]
 
 { #category : #accessing }
@@ -459,6 +513,12 @@ WollokInterpreter >> visitBooleanLiteral: aWollokBooleanLiteralNode [
 
 	^ self asWollokBoolean: (aWollokBooleanLiteralNode value value = 'true') 
 
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitCatch: aWollokCatchNode [ 
+
+	^ aWollokCatchNode expression acceptVisitor: self
 ]
 
 { #category : #visiting }
@@ -576,6 +636,44 @@ WollokInterpreter >> visitStringLiteral: aWollokStringLiteralNode [
 	^ self asWollokString: (aWollokStringLiteralNode value value copyWithout: $").
 
 
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitThrow: aNode [
+
+	| aWollokException |
+	aWollokException := aNode exception acceptVisitor: self.
+	self throwException: aWollokException
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitTry: aWollokTryNode [
+	| aClosure tryContext |
+
+	tryContext := self currentContext.
+
+	[ [ aClosure := aWollokTryNode expression acceptVisitor: self.
+	self sendMessage: 'apply' to: aClosure withArguments: {} ]
+		on: WollokError
+		do: [ :e | 
+			| aWollokException catchClosure |
+			aWollokException := e wollokException.
+
+			self popContextUntil: tryContext.
+			
+			(aWollokTryNode catchBlocks size > 1) ifTrue: [self notYetImplemented].
+
+			catchClosure := aWollokTryNode catchBlocks first
+				acceptVisitor: self.
+
+			catchClosure
+				argumentAt: aWollokTryNode catchBlocks first exceptionVarName name value
+				put: aWollokException.
+
+			self sendMessage: 'apply' to: catchClosure withArguments: {} ] ]
+		ensure: [ 
+			self popContextUntil: tryContext.
+			aWollokTryNode alwaysExpression ifNotNil: [ self notYetImplemented  ] ]
 ]
 
 { #category : #visiting }

@@ -33,7 +33,9 @@ WollokObject >> asDate [
 { #category : #converting }
 WollokObject >> asNumber [
 	
+	self assert: (instanceVariables size = 1).
 	self assert: (instanceVariables at: 1) isNumber.
+	
 	^ instanceVariables at: 1
 ]
 

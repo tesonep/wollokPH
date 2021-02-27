@@ -247,7 +247,7 @@ WollokClass >> resolveBindingsUsing: aWollokInterpreter [
 { #category : #'private - intance creation' }
 WollokClass >> runConstructorOn: anInstance parameters: parameters allVariables: allVariables interpreter: anInterpreter [
 
-	anInterpreter pushInitializationContextFor: self.
+	anInterpreter pushInitializationContextFor: anInstance.
 
 	allVariables withIndexDo: [ :aVariable :anIndex | 
 		parameters at: aVariable variable name value 

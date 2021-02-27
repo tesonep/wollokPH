@@ -16,6 +16,11 @@ WollokClosure >> argumentAt: aString put: aWollokObject [
 ]
 
 { #category : #accessing }
+WollokClosure >> arguments [
+	^ arguments
+]
+
+{ #category : #accessing }
 WollokClosure >> arguments: aCollection [ 
 	arguments := aCollection
 ]
@@ -50,4 +55,13 @@ WollokClosure >> resolve: aName [
 
 	arguments at:aName ifPresent: [ :x | ^ x ].
 	^ homeContext resolve: aName
+]
+
+{ #category : #resolving }
+WollokClosure >> resolve: aName andPut: aValue [ 
+
+	(homeContext hasVariable: aName)
+		ifTrue: [ ^ homeContext resolve: aName andPut: aValue ].
+
+	^ wollokClass resolve: aName inInstance: self andPut: aValue
 ]

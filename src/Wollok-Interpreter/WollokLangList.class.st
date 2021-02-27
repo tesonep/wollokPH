@@ -25,3 +25,9 @@ WollokLangList >> get: aReceiver with: aWollokNumber [
 
 	^ aReceiver asCollection at: aWollokNumber asNumber + 1
 ]
+
+{ #category : #'native methods' }
+WollokLangList >> size: aWollokInmediate [ 
+
+	^ interpreter asWollokNumber: (aWollokInmediate instanceVariables at: 1) size
+]
