@@ -20,7 +20,11 @@ WollokLangNumber >> add: aWollokObject with: aWollokObject2 [
 
 { #category : #'native methods' }
 WollokLangNumber >> division: aWollokInmediate with: aWollokInmediate2 [ 
-	
+
+	aWollokInmediate2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
+	aWollokInmediate2 asNumber = 0
+		ifTrue: [ ^ interpreter throwExceptionWithMessage: 'Zero divide' ].
 	^ interpreter asWollokNumber: aWollokInmediate asNumber / aWollokInmediate2 asNumber
 ]
 
@@ -55,18 +59,32 @@ WollokLangNumber >> lowerThan: aWollokObject with: aWollokObject2 [
 { #category : #'native method' }
 WollokLangNumber >> minus: aReceiver with: anotherObject [ 
 
+	anotherObject wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokNumber: aReceiver asNumber - anotherObject asNumber
+]
+
+{ #category : #'native methods' }
+WollokLangNumber >> modulo: aReceiver with: otherWollokNumber [
+
+	otherWollokNumber wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
+	^ interpreter asWollokNumber: aReceiver asNumber \\ otherWollokNumber asNumber
 ]
 
 { #category : #'native methods' }
 WollokLangNumber >> multiply: aReceiver with: otherWollokNumber [
 
+	otherWollokNumber wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokNumber: aReceiver asNumber * otherWollokNumber asNumber
 ]
 
 { #category : #'native methods' }
 WollokLangNumber >> raiseTo: aReceiver with: anotherObject [ 
 	
+	anotherObject wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokNumber: aReceiver asNumber ** anotherObject asNumber
 ]
 

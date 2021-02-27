@@ -56,7 +56,8 @@ WollokNativeObject >> convertSymbolSelector: aSymbol [
 			#-			-> #minus.
 			#**		-> #raiseTo.
 			#< 		-> #lowerThan.
-			#> 		-> #greaterThan } asDictionary at: aSymbol
+			#> 		-> #greaterThan.
+			#% 		-> #modulo } asDictionary at: aSymbol
 ]
 
 { #category : #accessing }

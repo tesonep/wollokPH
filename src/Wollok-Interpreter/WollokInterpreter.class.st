@@ -66,7 +66,7 @@ WollokInterpreter >> asWollokNumber: aNumber [
 
 	^ WollokInmediate new 
 		wollokClass: self numberClass;
-		instanceVariables: {aNumber};
+		instanceVariables: {aNumber asScaledDecimal round: 5};
 		yourself
 ]
 
