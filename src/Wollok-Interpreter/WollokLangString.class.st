@@ -19,6 +19,8 @@ WollokLangString >> concat: aWollokObject with: aWollokObject2 [
 { #category : #'native methods' }
 WollokLangString >> equals: aWollokObject with: aWollokObject2 [ 
 
+	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.String')
+		ifFalse: [ ^ interpreter falseObject ].
 	^ interpreter asWollokBoolean: (aWollokObject asPharoString = aWollokObject2 asPharoString)
 ]
 
