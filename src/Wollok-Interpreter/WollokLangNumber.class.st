@@ -51,6 +51,15 @@ WollokLangNumber >> doubleEquals: aWollokObject with: aWollokObject2 [
 ]
 
 { #category : #'native methods' }
+WollokLangNumber >> gcd: aWollokInmediate with: aWollokInmediate2 [ 
+
+	aWollokInmediate2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
+		
+	^ interpreter asWollokNumber: (aWollokInmediate asNumber asInteger gcd: aWollokInmediate2 asNumber asInteger)
+]
+
+{ #category : #'native methods' }
 WollokLangNumber >> greaterThan: aWollokObject with: aWollokObject2 [ 
 	
 	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
@@ -62,6 +71,12 @@ WollokLangNumber >> greaterThan: aWollokObject with: aWollokObject2 [
 WollokLangNumber >> invert: aWollokNumber [ 
 	
 	^ interpreter asWollokNumber: aWollokNumber asNumber negated
+]
+
+{ #category : #'native methods' }
+WollokLangNumber >> isInteger: aWollokInmediate [ 
+	
+	^ interpreter asWollokBoolean: (aWollokInmediate asNumber = aWollokInmediate asNumber asInteger)
 ]
 
 { #category : #'native methods' }
@@ -136,7 +151,11 @@ WollokLangNumber >> roundUp: aReceiver with: aWollokNumber [
 { #category : #'native methods' }
 WollokLangNumber >> toString: aWollokInmediate [ 
 	
-	^ interpreter asWollokString: aWollokInmediate asNumber asString
+	| toStringify |
+	toStringify := aWollokInmediate asNumber = aWollokInmediate asNumber asInteger
+		ifTrue: [ aWollokInmediate asNumber asInteger ]
+		ifFalse: [ aWollokInmediate asNumber asFloat ].
+	^ interpreter asWollokString: toStringify asString
 ]
 
 { #category : #'native methods' }
