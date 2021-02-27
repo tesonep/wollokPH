@@ -131,7 +131,10 @@ WollokClass >> isProperty: aString [
 	
 	^ variables detect: [ :aVar | aVar variable name value = aString ]
 			ifFound: [ :aVar | aVar property isNotNil ]
-			ifNone: [ false ]
+			ifNone: [ 
+				self superclass
+					ifNil: [ ^ false ]
+					ifNotNil: [ :aSuperclass | aSuperclass isProperty: aString ]]
 ]
 
 { #category : #'native objects' }

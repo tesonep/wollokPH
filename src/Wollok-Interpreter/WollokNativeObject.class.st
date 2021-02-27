@@ -25,6 +25,23 @@ WollokNativeObject >> activateNativeContext: aWollokContext [
 		aWollokContext returnValue:(returnValue = self ifTrue: [ interpreter voidObject ] ifFalse: [ returnValue ])
 ]
 
+{ #category : #utils }
+WollokNativeObject >> checkIntegerNumber: aMaybeWollokNumber name: aName [ 
+
+	self checkNumber: aMaybeWollokNumber name: aName.
+		
+	aMaybeWollokNumber asNumber isInteger
+		ifFalse: [ interpreter throwExceptionWithMessage: 'Parameter ' , aName , ' should be an integer number'].	
+]
+
+{ #category : #utils }
+WollokNativeObject >> checkNumber: aMaybeWollokNumber name: aName [
+
+	aMaybeWollokNumber wollokClass = interpreter numberClass
+		ifFalse: [ interpreter
+				throwExceptionWithMessage: 'Parameter ' , aName , ' should be a number' ]
+]
+
 { #category : #symbols }
 WollokNativeObject >> convertSymbolSelector: aSymbol [ 
 
