@@ -7,7 +7,8 @@ Class {
 		'trueObject',
 		'voidObject',
 		'nullObject',
-		'falseObject'
+		'falseObject',
+		'numberClass'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -63,12 +64,8 @@ WollokInterpreter >> asWollokList: elements [
 { #category : #'visiting - literals' }
 WollokInterpreter >> asWollokNumber: aNumber [ 
 
-	| numberClass |
-
-	numberClass := self currentContext resolve: 'wollok.lang.Number'.
-
 	^ WollokInmediate new 
-		wollokClass: numberClass;
+		wollokClass: self numberClass;
 		instanceVariables: {aNumber};
 		yourself
 ]
@@ -297,6 +294,13 @@ WollokInterpreter >> nullObject [
 				wollokClass: objectClass;
 				instanceVariables: #();
 				yourself ]
+]
+
+{ #category : #accessing }
+WollokInterpreter >> numberClass [
+
+	^ numberClass ifNil: [numberClass := self currentContext resolve: 'wollok.lang.Number']
+
 ]
 
 { #category : #'context creation' }
@@ -557,9 +561,9 @@ WollokInterpreter >> visitIfExpression: aWollokIfExpressionNode [
 	conditionResult := aWollokIfExpressionNode condition acceptVisitor: self.
 
 	^ conditionResult asBoolean
-		ifTrue: [ aWollokIfExpressionNode then acceptVisitor: self ]
+		ifTrue: [ self visitMaybeClosureAsBlock: aWollokIfExpressionNode then ]
 		ifFalse: [ aWollokIfExpressionNode else 
-			ifNotNil: [ :elseExpression | elseExpression acceptVisitor: self ] ]
+			ifNotNil: [ :elseExpression | self visitMaybeClosureAsBlock: elseExpression ] ]
 ]
 
 { #category : #'visiting - literals' }
@@ -569,6 +573,15 @@ WollokInterpreter >> visitListLiteral: aNode [
 	
 	elements := aNode elements collect: [ :e | e acceptVisitor: self ].
 	^ self asWollokList: elements
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitMaybeClosureAsBlock: aNode [
+	
+	(aNode isKindOf: WollokClosureNode)
+		ifTrue:[ ^ self visitBlockExpression: aNode expression].
+		
+	^ aNode acceptVisitor: self
 ]
 
 { #category : #visiting }

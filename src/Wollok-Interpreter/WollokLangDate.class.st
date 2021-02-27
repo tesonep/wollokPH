@@ -11,20 +11,26 @@ WollokLangDate class >> wollokClassName [
 ]
 
 { #category : #converting }
-WollokLangDate >> asWollokDate: aDate [ 
-	
+WollokLangDate >> asWollokDate: aDate [
 	| dateClass |
-
 	dateClass := interpreter currentContext resolve: 'wollok.lang.Date'.
 
-	^ aDate dayMonthYearDo: [ :d :m :y |
-			WollokObject new 
+	^ aDate
+		dayMonthYearDo: [ :d :m :y | 
+			WollokObject new
 				wollokClass: dateClass;
-				instanceVariables: {d. m. y};
-				yourself	].
+				instanceVariables:
+					{(interpreter asWollokNumber: d).
+					(interpreter asWollokNumber: m).
+					(interpreter asWollokNumber: y)};
+				yourself ]
+]
 
+{ #category : #utils }
+WollokLangDate >> checkDate: aWollokInmediate name: aString [ 
 
-
+	(aWollokInmediate wollokClass = (interpreter resolve: 'wollok.lang.Date'))
+		ifFalse: [ interpreter throwExceptionWithMessage: 'The argument ' , aString , ' should be a wollok.lang.Date' ]
 ]
 
 { #category : #'native methods' }
@@ -39,6 +45,7 @@ WollokLangDate >> equals: aReceiver with: otherObject [
 { #category : #'native methods' }
 WollokLangDate >> greaterThan: aReceiver with: anotherDate [ 
 
+	self checkDate: anotherDate name: 'anotherDate'.
 	^ interpreter asWollokBoolean: aReceiver asDate > anotherDate asDate
 ]
 
@@ -91,23 +98,28 @@ WollokLangDate >> lowerThan: aReceiver with: anotherDate [
 { #category : #'native methods' }
 WollokLangDate >> minus: aWollokDate with: anotherWollokDate [ 
 
+	self checkDate: anotherWollokDate name: 'aDate'.
 	^ interpreter asWollokNumber: (aWollokDate asDate - anotherWollokDate asDate) days
 ]
 
 { #category : #'native methods' }
 WollokLangDate >> minusDays: aReceiver with: anWollokNumber [ 
 
+	self checkIntegerNumber: anWollokNumber name: 'days'.
 	^ self asWollokDate: (aReceiver asDate addDays: anWollokNumber asNumber negated)
 ]
 
 { #category : #'native methods' }
 WollokLangDate >> minusMonths: aWollokDate with: aWollokNumber [
 
+	self checkNumber: aWollokNumber name: 'months'.
 	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber asInteger negated)
 ]
 
 { #category : #'native methods' }
 WollokLangDate >> minusYears: aWollokDate with: aWollokNumber [ 
+
+	self checkIntegerNumber: aWollokNumber name: 'years'.
 
 	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber * -12)
 
@@ -116,12 +128,15 @@ WollokLangDate >> minusYears: aWollokDate with: aWollokNumber [
 { #category : #'native methods' }
 WollokLangDate >> plusDays: aReceiver with: aWollokNumber [ 
 
+	self checkIntegerNumber: aWollokNumber name: 'days'.
+
 	^ self asWollokDate: (aReceiver asDate addDays: aWollokNumber asNumber)
 ]
 
 { #category : #'native methods' }
 WollokLangDate >> plusMonths: aWollokDate with: aWollokNumber [ 
 
+	self checkIntegerNumber: aWollokNumber name: 'months'.
 	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber)
 	
 ]
@@ -129,6 +144,7 @@ WollokLangDate >> plusMonths: aWollokDate with: aWollokNumber [
 { #category : #'native methods' }
 WollokLangDate >> plusYears: aWollokDate with: aWollokNumber [ 
 	
+	self checkIntegerNumber: aWollokNumber name: 'years'.
 	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber * 12)
 	
 ]
