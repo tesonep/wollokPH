@@ -13,6 +13,8 @@ WollokLangNumber class >> wollokClassName [
 { #category : #'native methdos' }
 WollokLangNumber >> add: aWollokObject with: aWollokObject2 [ 
 	
+	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokNumber: (aWollokObject asNumber + aWollokObject2 asNumber)
 ]
 
