@@ -38,8 +38,7 @@ WollokLangDate >> equals: aReceiver with: otherObject [
 
 	otherObject wollokClass = otherObject wollokClass 
 		ifFalse: [ ^ interpreter falseObject ].
-		
-	^ interpreter asWollokBoolean: (aReceiver instanceVariables collect: [:e | e asNumber]) = (otherObject instanceVariables collect: [:e | e asNumber])
+	^ interpreter asWollokBoolean: (aReceiver instanceVariables collect: [:e | e asNumber asInteger]) = (otherObject instanceVariables collect: [:e | e asNumber asInteger])
 ]
 
 { #category : #'native methods' }
@@ -121,7 +120,7 @@ WollokLangDate >> minusYears: aWollokDate with: aWollokNumber [
 
 	self checkIntegerNumber: aWollokNumber name: 'years'.
 
-	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber * -12)
+	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber asInteger * -12)
 
 ]
 
@@ -137,7 +136,7 @@ WollokLangDate >> plusDays: aReceiver with: aWollokNumber [
 WollokLangDate >> plusMonths: aWollokDate with: aWollokNumber [ 
 
 	self checkIntegerNumber: aWollokNumber name: 'months'.
-	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber)
+	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber asInteger)
 	
 ]
 
@@ -145,12 +144,12 @@ WollokLangDate >> plusMonths: aWollokDate with: aWollokNumber [
 WollokLangDate >> plusYears: aWollokDate with: aWollokNumber [ 
 	
 	self checkIntegerNumber: aWollokNumber name: 'years'.
-	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber * 12)
+	^ self asWollokDate: (aWollokDate asDate addMonths: aWollokNumber asNumber asInteger * 12)
 	
 ]
 
 { #category : #'native methods' }
 WollokLangDate >> shortDescription: aWollokObject [ 
 
-	^ interpreter asWollokString: ('{2}/{1}/{3}' format: (aWollokObject instanceVariables collect: #asNumber))
+	^ interpreter asWollokString: ('{2}/{1}/{3}' format: (aWollokObject instanceVariables collect: [ :e | e asNumber asInteger ]))
 ]

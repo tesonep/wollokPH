@@ -30,7 +30,7 @@ WollokNativeObject >> checkIntegerNumber: aMaybeWollokNumber name: aName [
 
 	self checkNumber: aMaybeWollokNumber name: aName.
 		
-	aMaybeWollokNumber asNumber isInteger
+	aMaybeWollokNumber asNumber = aMaybeWollokNumber asNumber asInteger
 		ifFalse: [ interpreter throwExceptionWithMessage: 'Parameter ' , aName , ' should be an integer number'].	
 ]
 
