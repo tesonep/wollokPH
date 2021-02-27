@@ -151,14 +151,16 @@ WollokClass >> lookupNativeObjectForMethod: aString [
 { #category : #methods }
 WollokClass >> lookupSelector: aString usingArguments: numberOfArguments [
 
-	^ methods
-		detect: [ :aMethod | 
+	methods
+		detect: [ :aMethod |
 			aMethod name value = aString 
-				and: [ self isMethod: aMethod forArguments: numberOfArguments ] ]
-		ifNone: [ self superclass
-				ifNil: [ ^ nil ]
-				ifNotNil: [ :aSuperclass | 
-					aSuperclass lookupSelector: aString usingArguments: numberOfArguments] ]
+			and: [ self isMethod: aMethod forArguments: numberOfArguments ] ]
+		ifFound: [ :aMethod | ^ { aMethod . self } ].
+			
+	^ self superclass
+		ifNil: [ nil ]
+		ifNotNil: [ :aSuperclass | 
+			aSuperclass lookupSelector: aString usingArguments: numberOfArguments]
 ]
 
 { #category : #accessing }
