@@ -685,6 +685,7 @@ WollokInterpreter >> visitUnaryOperation: aWollokUnaryOperationNode [
 	
 	selector := (Dictionary newFromPairs: {	
 		'!'. 'negate'.
+		'not'. 'negate'.
 		'-'. 'invert' }) at: operator.
 
 	^ self 
