@@ -12,8 +12,7 @@ WollokLangRange class >> wollokClassName [
 
 { #category : #'native methods' }
 WollokLangRange >> forEach: aWollokObject with: aWollokClosure [ 
-	
-	1halt.
+
 	aWollokObject asInterval do: [ :e |
 		interpreter
 			sendMessage: 'apply'

@@ -502,6 +502,16 @@ WollokInterpreter >> visitAssignment: aNode [
 	
 	value := aNode value acceptVisitor: self.
 	
+	aNode operation value = '+=' ifTrue: [ 
+		"Should reuse the same implementation as in WollokLangNumber >> add:with:"
+		self flag: #repeated.
+		value := self asWollokNumber: (self currentContext resolve: aNode variable name value) asNumber + value asNumber ].
+	
+	aNode operation value = '-=' ifTrue: [ 
+		"Should reuse the same implementation as in WollokLangNumber >> add:with:"
+		self flag: #repeated.
+		value := self asWollokNumber: (self currentContext resolve: aNode variable name value) asNumber - value asNumber ].
+	
 	self currentContext resolve: aNode variable name value andPut: value.
 	^ value
 ]
