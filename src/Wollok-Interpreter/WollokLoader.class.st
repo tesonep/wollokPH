@@ -18,10 +18,22 @@ WollokLoader class >> libraryExtension [
 	^ 'wlk'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #paths }
 WollokLoader class >> libraryRootDirectory [
 
-	^ '/Users/admin/dev/wollok/wollok-language/src' asFileReference
+	^ self wollokRepositoryDirectory / 'src'
+]
+
+{ #category : #paths }
+WollokLoader class >> sanityTestsRootDirectory [
+
+	^ self wollokRepositoryDirectory / 'test/sanity'
+]
+
+{ #category : #paths }
+WollokLoader class >> wollokRepositoryDirectory [
+
+	^ FileLocator localDirectory / 'iceberg' / 'wollok-language'
 ]
 
 { #category : #accessing }
