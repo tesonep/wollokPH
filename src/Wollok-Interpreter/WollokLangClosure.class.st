@@ -13,13 +13,7 @@ WollokLangClosure class >> wollokClassName [
 { #category : #'native methods' }
 WollokLangClosure >> apply: aWollokClosure with: aCollection [ 
 
-	| arguments |
-	
-	arguments := interpreter distributeArguments: aCollection asCollection intoParameters: aWollokClosure ast parameters.
-	aWollokClosure arguments addAll: arguments.
-
-	^ aWollokClosure ast expression acceptVisitor: interpreter.
-
+	^ interpreter applyClosure: aWollokClosure withArguments: aCollection asCollection
 ]
 
 { #category : #'native methods' }

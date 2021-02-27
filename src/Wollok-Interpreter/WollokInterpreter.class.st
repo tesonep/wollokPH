@@ -40,6 +40,19 @@ WollokInterpreter >> activatePrimitiveMethod [
 	nativeObject activateNativeContext: context.
 ]
 
+{ #category : #'native objects' }
+WollokInterpreter >> applyClosure: aWollokClosure withArguments: aCollection [
+
+	| arguments |
+	
+	arguments := self
+		distributeArguments: aCollection
+		intoParameters: aWollokClosure ast parameters.
+	
+	aWollokClosure arguments addAll: arguments.
+	^ aWollokClosure ast expression acceptVisitor: self
+]
+
 { #category : #'visiting - literals' }
 WollokInterpreter >> asWollokBoolean: aBoolean [
 
