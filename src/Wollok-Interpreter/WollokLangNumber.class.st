@@ -10,12 +10,24 @@ WollokLangNumber class >> wollokClassName [
 	^ 'wollok.lang.Number'
 ]
 
-{ #category : #'native methdos' }
+{ #category : #'native methods' }
+WollokLangNumber >> abs: aWollokInmediate [ 
+
+	^ interpreter asWollokNumber: aWollokInmediate asNumber abs
+]
+
+{ #category : #'native methods' }
 WollokLangNumber >> add: aWollokObject with: aWollokObject2 [ 
 	
 	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
 		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokNumber: (aWollokObject asNumber + aWollokObject2 asNumber)
+]
+
+{ #category : #'native methods' }
+WollokLangNumber >> coerceToInteger: aWollokInmediate [ 
+
+	^ interpreter asWollokNumber: aWollokInmediate asNumber asInteger
 ]
 
 { #category : #'native methods' }
@@ -41,6 +53,8 @@ WollokLangNumber >> doubleEquals: aWollokObject with: aWollokObject2 [
 { #category : #'native methods' }
 WollokLangNumber >> greaterThan: aWollokObject with: aWollokObject2 [ 
 	
+	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokBoolean: (aWollokObject asNumber > aWollokObject2 asNumber)
 ]
 
@@ -53,10 +67,12 @@ WollokLangNumber >> invert: aWollokNumber [
 { #category : #'native methods' }
 WollokLangNumber >> lowerThan: aWollokObject with: aWollokObject2 [ 
 
+	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
 	^ interpreter asWollokBoolean: (aWollokObject asNumber < aWollokObject2 asNumber)
 ]
 
-{ #category : #'native method' }
+{ #category : #'native methods' }
 WollokLangNumber >> minus: aReceiver with: anotherObject [ 
 
 	anotherObject wollokClass = (interpreter resolve: 'wollok.lang.Number')
@@ -93,7 +109,14 @@ WollokLangNumber >> roundUp: aReceiver with: aWollokNumber [
 
 	| aFloat rounding desiredDecimals parts aReceiverNumber |
 
+	aWollokNumber wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
+
 	desiredDecimals := aWollokNumber asNumber.
+	
+	desiredDecimals >= 0
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid negative argument' ].
+	
 	aReceiverNumber := aReceiver asNumber asFloat.
 
 	"Lets check if the rounding is already done"
@@ -121,7 +144,13 @@ WollokLangNumber >> truncate: aReceiver with: aPrecision [
 
 	| aFloat rounding desiredDecimals parts aReceiverNumber |
 
+	aPrecision wollokClass = (interpreter resolve: 'wollok.lang.Number')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
+
 	desiredDecimals := aPrecision asNumber.
+	
+	desiredDecimals >= 0
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid negative argument' ].
 	aReceiverNumber := aReceiver asNumber asFloat.
 
 	"Lets check if the rounding is already done"
