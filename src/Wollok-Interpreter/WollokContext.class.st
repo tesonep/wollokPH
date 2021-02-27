@@ -31,6 +31,16 @@ WollokContext >> beReturned [
 	hasReturned := true
 ]
 
+{ #category : #copying }
+WollokContext >> copyToTop [
+	
+	| aCopy |
+
+	aCopy := self copy.
+	aCopy sender ifNotNil: [ aCopy sender: sender copyToTop ].
+	^ aCopy
+]
+
 { #category : #variables }
 WollokContext >> declareVariable: aString withValue: aWollokObject [ 
 
@@ -41,6 +51,12 @@ WollokContext >> declareVariable: aString withValue: aWollokObject [
 WollokContext >> hasReturned [
 	
 	^ hasReturned 
+]
+
+{ #category : #testing }
+WollokContext >> hasVariable: aString [ 
+	
+	^ (arguments includesKey: aString) or: [ variables includesKey: aString ]
 ]
 
 { #category : #accessing }
@@ -116,6 +132,11 @@ WollokContext >> returnValue: aWollokObject [
 { #category : #accessing }
 WollokContext >> selector: aString [ 
 	selector := aString
+]
+
+{ #category : #accessing }
+WollokContext >> sender [
+	^ sender
 ]
 
 { #category : #accessing }
