@@ -14,7 +14,7 @@ WollokRunSanityTests class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := '/Users/admin/dev/wollok/wollok-language/test/sanity' asFileReference.
+	directory := WollokLoader sanityTestsRootDirectory.
 
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]
