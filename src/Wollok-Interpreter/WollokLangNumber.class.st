@@ -91,6 +91,12 @@ WollokLangNumber >> roundUp: aReceiver with: aWollokNumber [
 ]
 
 { #category : #'native methods' }
+WollokLangNumber >> toString: aWollokInmediate [ 
+	
+	^ interpreter asWollokString: aWollokInmediate asNumber asString
+]
+
+{ #category : #'native methods' }
 WollokLangNumber >> truncate: aReceiver with: aPrecision [ 
 
 	| aFloat rounding desiredDecimals parts aReceiverNumber |
