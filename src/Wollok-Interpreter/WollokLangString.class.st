@@ -155,3 +155,9 @@ WollokLangString >> toUpperCase: aWollokInmediate [
 
 	^ interpreter asWollokString: aWollokInmediate asPharoString asUppercase
 ]
+
+{ #category : #'native methods' }
+WollokLangString >> trim: aWollokInmediate [ 
+
+	^ interpreter asWollokString: aWollokInmediate asPharoString trim
+]

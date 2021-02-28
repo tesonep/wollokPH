@@ -86,7 +86,7 @@ WollokSuiteNode >> members: anOrderedCollection [
 { #category : #accessing }
 WollokSuiteNode >> methods [
 	
-	^ tests
+	^ tests , (members select: [:e | e isKindOf: WollokMethodDeclarationNode ])
 ]
 
 { #category : #generated }
@@ -148,5 +148,5 @@ WollokSuiteNode >> tokenVariables [
 { #category : #'as yet unclassified' }
 WollokSuiteNode >> variables [
 	
-	^ #()
+	^ members select: [ :e | e isKindOf: WollokVariableDeclarationNode ]
 ]

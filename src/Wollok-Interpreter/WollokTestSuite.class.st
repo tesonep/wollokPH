@@ -29,14 +29,6 @@ WollokTestSuite >> initialize [
 ]
 
 { #category : #accessing }
-WollokTestSuite >> initializeFromAST: aWollokASTNode withName: aName [
-
-	super initializeFromAST: aWollokASTNode withName: aName.
-	
-	aWollokASTNode members do: [ :e | self addVariable: e ].
-]
-
-{ #category : #accessing }
 WollokTestSuite >> name [
 	
 	^ name ifNil: [ ast name value value]
