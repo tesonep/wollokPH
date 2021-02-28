@@ -50,6 +50,15 @@ WollokClass >> basicInstantiate: aWollokInterpreter [
 
 ]
 
+{ #category : #'private - instance creation' }
+WollokClass >> initialize: allVariables into: anInstance fromNamedArguments: arguments [ 
+
+	allVariables withIndexDo: [ :aVariable :anIndex | 
+		arguments namedArguments at: aVariable variable name value 
+			ifPresent: [:aValue | anInstance instanceVariables at: anIndex put: aValue ]].
+
+]
+
 { #category : #initialization }
 WollokClass >> initializeFromAST: aWollokASTNode [
 	
@@ -78,7 +87,7 @@ WollokClass >> initializeStateUsing: anInterpreter [
 { #category : #'instance creation' }
 WollokClass >> instantiateUsing: aWollokInterpreter [ 
 
-	^ self instantiateUsing: aWollokInterpreter with: Dictionary new
+	^ self instantiateUsing: aWollokInterpreter with: WollokConstructorArguments empty
 ]
 
 { #category : #'instance creation' }
@@ -90,7 +99,7 @@ WollokClass >> instantiateUsing: aWollokInterpreter with: parameters [
 		
 	self 
 		runConstructorOn: anInstance 
-		parameters: parameters
+		arguments: parameters
 		allVariables: self allVariables
 		interpreter: aWollokInterpreter.
 	
@@ -250,13 +259,11 @@ WollokClass >> resolveBindingsUsing: aWollokInterpreter [
 ]
 
 { #category : #'private - intance creation' }
-WollokClass >> runConstructorOn: anInstance parameters: parameters allVariables: allVariables interpreter: anInterpreter [
+WollokClass >> runConstructorOn: anInstance arguments: arguments allVariables: allVariables interpreter: anInterpreter [
 
 	anInterpreter pushInitializationContextFor: anInstance.
 
-	allVariables withIndexDo: [ :aVariable :anIndex | 
-		parameters at: aVariable variable name value 
-			ifPresent: [:aValue | anInstance instanceVariables at: anIndex put: aValue ]].
+	self initialize: allVariables into: anInstance fromNamedArguments: arguments.
 
 	allVariables withIndexDo: [ :aVariable :anIndex | 
 		(anInstance instanceVariables at: anIndex) 

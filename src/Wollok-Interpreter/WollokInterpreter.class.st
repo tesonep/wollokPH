@@ -601,12 +601,9 @@ WollokInterpreter >> visitConstructorCall: aWollokConstructorCallNode [
 	| aClass arguments |
 	aClass := self resolve: aWollokConstructorCallNode classRef asWollokQualifiedName.
 
-	arguments := aWollokConstructorCallNode argumentList 
-		ifNil: [Dictionary new] 
-		ifNotNil: [ 
-			WollokConstructorArgumentVisitor 
-				extractArguments: aWollokConstructorCallNode argumentList
-				using: self  ].
+	arguments := WollokConstructorArguments 
+								extractArguments: aWollokConstructorCallNode argumentList
+								using: self.
 
 	^ aClass instantiateUsing: self with: arguments
 ]
