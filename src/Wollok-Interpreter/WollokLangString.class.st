@@ -30,6 +30,14 @@ WollokLangString >> contains: aWollokInmediate with: aWollokInmediate2 [
 ]
 
 { #category : #'native methods' }
+WollokLangString >> endsWith: aWollokInmediate with: aWollokInmediate2 [ 
+
+	aWollokInmediate2 wollokClass = (interpreter resolve: 'wollok.lang.String')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid String argument' ].
+	^ interpreter asWollokBoolean: (aWollokInmediate asPharoString endsWith: aWollokInmediate2 asPharoString)
+]
+
+{ #category : #'native methods' }
 WollokLangString >> equals: aWollokObject with: aWollokObject2 [ 
 
 	aWollokObject2 wollokClass = (interpreter resolve: 'wollok.lang.String')
@@ -110,6 +118,14 @@ WollokLangString >> reverse: aWollokInmediate [
 ]
 
 { #category : #'native methods' }
+WollokLangString >> startsWith: aWollokInmediate with: aWollokInmediate2 [ 
+	
+	aWollokInmediate2 wollokClass = (interpreter resolve: 'wollok.lang.String')
+		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid String argument' ].
+	^ interpreter asWollokBoolean: (aWollokInmediate asPharoString beginsWith: aWollokInmediate2 asPharoString)
+]
+
+{ #category : #'native methods' }
 WollokLangString >> substring: aWollokInmediate with: aWollokObject [ 
 	
 	self checkNumber: aWollokObject name: 'index'.
@@ -125,11 +141,11 @@ WollokLangString >> substring: aWollokInmediate with: aWollokInmediate2 with: aW
 
 	aWollokInmediate3 wollokClass = (interpreter resolve: 'wollok.lang.Number')
 		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid Number argument' ].
-	
-	(aWollokInmediate2 asNumber asInteger + 1 between: 1 and: aWollokInmediate asPharoString size)
+
+	(aWollokInmediate2 asNumber asInteger + 1 between: 1 and: aWollokInmediate asPharoString size + 1)
 		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Subscript out of bounds' ].
 
-	(aWollokInmediate3 asNumber asInteger + 1 between: 1 and: aWollokInmediate asPharoString size)
+	(aWollokInmediate3 asNumber asInteger + 1 between: 1 and: aWollokInmediate asPharoString size + 1)
 		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Subscript out of bounds' ].
 	
 	^ interpreter asWollokString: (aWollokInmediate asPharoString

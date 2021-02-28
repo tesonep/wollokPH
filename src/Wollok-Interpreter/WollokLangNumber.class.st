@@ -33,7 +33,10 @@ WollokLangNumber >> coerceToInteger: aWollokInmediate [
 { #category : #'native methods' }
 WollokLangNumber >> coerceToPositiveInteger: aWollokInmediate [ 
 
-	^ interpreter asWollokNumber: aWollokInmediate asNumber asInteger abs
+	aWollokInmediate asNumber < 0
+		ifTrue: [ interpreter throwExceptionWithMessage: 'Coercing negative integer to positive integer' ].
+
+	^ interpreter asWollokNumber: aWollokInmediate asNumber asInteger
 ]
 
 { #category : #'native methods' }
