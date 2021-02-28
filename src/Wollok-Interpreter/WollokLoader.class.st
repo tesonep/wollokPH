@@ -66,7 +66,9 @@ WollokLoader >> ensurePackageNamed: aWollokQualifiedName [
 		do: [ :aSegment | 
 			currentPackage := currentPackage 
 				at: aSegment 
-				ifAbsentPut: [WollokPackage named: aSegment parent: currentPackage ]].
+				ifAbsentPut: [
+					self haltIf: [ aSegment = 'Position' ].
+					WollokPackage named: aSegment parent: currentPackage ]].
 		
 	^ currentPackage
 ]
@@ -206,7 +208,12 @@ WollokLoader >> visitFile: aWollokFileNode [
 { #category : #visiting }
 WollokLoader >> visitImport: aWollokImportNode [ 
 	
-	rootPackage imports add: aWollokImportNode importedNamespace qualifiedName asWollokQualifiedName 
+	| qualifiedName |
+	qualifiedName := aWollokImportNode importedNamespace hasAsterisk
+		ifNotNil: [ aWollokImportNode importedNamespace qualifiedName asWollokQualifiedName ]
+		ifNil: [ aWollokImportNode importedNamespace qualifiedName asWollokQualifiedName copyWithoutLast  ].
+
+	rootPackage imports add: qualifiedName.
 ]
 
 { #category : #loading }

@@ -65,7 +65,7 @@ WollokClass >> initialize: allVariables into: anInstance fromNamedArguments: arg
 { #category : #initialization }
 WollokClass >> initializeFromAST: aWollokASTNode [
 	
-	self initializeFromAST: aWollokASTNode withName: aWollokASTNode name value
+	self initializeFromAST: aWollokASTNode withName: aWollokASTNode name value value
 ]
 
 { #category : #initialization }
