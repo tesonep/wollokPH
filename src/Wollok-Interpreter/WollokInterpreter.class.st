@@ -526,22 +526,20 @@ WollokInterpreter >> trueObject [
 WollokInterpreter >> visitAssignment: aNode [
 	| value |
 	value := aNode value acceptVisitor: self.
-	aNode operation value = '+='
-		ifTrue:
-			[	value := self sendMessage: '+' to: (self currentContext resolve: aNode variable name value) withArguments: { value } ].
-			
-	aNode operation value = '-='
-		ifTrue:
-			[ "Should reuse the same implementation as in WollokLangNumber >> add:with:"
-			self flag: #repeated.
-			value := self
-				asWollokNumber:
-					(self currentContext resolve: aNode variable name value) asNumber
-						- value asNumber ].
+
+	{ '+=' -> '+'.
+		'-=' -> '-'.
+		'%=' -> '%'.
+		'/=' -> '/'.
+		'*=' -> '*' } asDictionary 
+		at: aNode operation value ifPresent: [ :anEffectSelector | 
+			value := self sendMessage: anEffectSelector to: (self currentContext resolve: aNode variable name value) withArguments: { value } ].
+	
 	self currentContext
 		resolve: aNode variable name value
 		andPut: value
 		inInterpreter: self.
+	
 	^ value
 ]
 
