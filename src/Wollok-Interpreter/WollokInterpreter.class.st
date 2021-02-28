@@ -318,7 +318,6 @@ WollokInterpreter >> interpretProgram: aWollokFileNode [
 WollokInterpreter >> interpretSuite: aWollokTestSuite storingResultsIn: aWollokTestResult [ 
 
 	aWollokTestSuite tests do: [ :aTest |
-		aWollokTestSuite fixture ifNotNil: [:aFixture | self interpretFixture: aFixture ].
 		self interpretTest: aTest storingResultsIn: aWollokTestResult.
 		self resetInterpreterState ]
 ]

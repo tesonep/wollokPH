@@ -257,7 +257,8 @@ WollokLoader >> visitSuite: aWollokSuiteNode [
 	aSuite tests: (aWollokSuiteNode tests collect: [:e | e acceptVisitor: self]).
 	aSuite tests do: [ :e | e parent: aSuite ].
 	
-	aWollokSuiteNode fixture ifNotNil: [ self notYetImplemented  ].
+	aWollokSuiteNode fixture 
+		ifNotNil: [ :aFixture | aSuite fixture: (WollokTestFixture fromAST: aFixture) ].
 	
 	^ aSuite
 ]

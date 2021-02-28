@@ -22,6 +22,12 @@ WollokTestSuite >> fixture [
 ]
 
 { #category : #accessing }
+WollokTestSuite >> fixture: aWollokTestFixture [ 
+
+	fixture := aWollokTestFixture
+]
+
+{ #category : #accessing }
 WollokTestSuite >> initialize [ 
 	
 	super initialize.
@@ -45,6 +51,23 @@ WollokTestSuite >> resolveBindingsUsing: aWollokInterpreter [
 
 	super resolveBindingsUsing: aWollokInterpreter.
 	tests do: [ :e | e resolveBindingsUsing: aWollokInterpreter]
+]
+
+{ #category : #'private - intance creation' }
+WollokTestSuite >> runConstructorOn: anInstance arguments: arguments allVariables: allVariables interpreter: anInterpreter [
+
+	anInterpreter pushInitializationContextFor: anInstance.
+
+	allVariables withIndexDo: [ :aVariable :anIndex | 
+			anInstance instanceVariables at: anIndex put: (
+					aVariable right 
+						ifNil: [ anInterpreter nullObject ] 
+						ifNotNil:[ :anExpression | anExpression acceptVisitor: anInterpreter ])  ].
+
+	fixture ifNotNil: [  
+		anInterpreter activateMethod: fixture withReceiver: anInstance withArguments: #()].
+	
+	anInterpreter popContext
 ]
 
 { #category : #accessing }
