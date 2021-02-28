@@ -43,6 +43,8 @@ WollokRuntimeElement >> initializeFromAST: aWollokASTNode [
 { #category : #accessing }
 WollokRuntimeElement >> package [
 	
+	self parent
+		ifNil: [ ^ WollokPackage named: #_UndefinedPackage parent: nil ].
 	^ self parent package
 ]
 
