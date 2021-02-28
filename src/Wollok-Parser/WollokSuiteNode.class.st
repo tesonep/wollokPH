@@ -83,6 +83,12 @@ WollokSuiteNode >> members: anOrderedCollection [
 	self setParents: self members to: self
 ]
 
+{ #category : #accessing }
+WollokSuiteNode >> methods [
+	
+	^ tests
+]
+
 { #category : #generated }
 WollokSuiteNode >> name [
 	^ name
@@ -137,4 +143,10 @@ WollokSuiteNode >> tests: anOrderedCollection [
 { #category : #generated }
 WollokSuiteNode >> tokenVariables [
 	^ #(#describeToken #leftBraceToken #rightBraceToken)
+]
+
+{ #category : #'as yet unclassified' }
+WollokSuiteNode >> variables [
+	
+	^ #()
 ]

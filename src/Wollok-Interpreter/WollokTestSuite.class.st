@@ -1,10 +1,9 @@
 Class {
 	#name : #WollokTestSuite,
-	#superclass : #WollokRuntimeElement,
+	#superclass : #WollokClass,
 	#instVars : [
 		'tests',
-		'fixture',
-		'name'
+		'fixture'
 	],
 	#category : #'Wollok-Interpreter'
 }

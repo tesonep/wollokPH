@@ -18,10 +18,13 @@ WollokClass class >> defaultSuperclassName [
 ]
 
 { #category : #methods }
-WollokClass >> addMethod: aWollokMethodDeclarationNode [ 
+WollokClass >> addMethod: aWollokMethod [
 
-	self haltIf: [ (aWollokMethodDeclarationNode isKindOf: WollokMethodDeclarationNode) not ].
-	self methods add: aWollokMethodDeclarationNode
+	self haltIf: [ 
+		(aWollokMethod isKindOf: WollokMethod) not
+			and: [ (aWollokMethod isKindOf: WollokTestNode) not ] ].
+	aWollokMethod methodClass: self.
+	self methods add: aWollokMethod
 ]
 
 { #category : #members }
@@ -66,7 +69,7 @@ WollokClass >> initializeFromAST: aWollokASTNode withName: aName [
 	variables := OrderedCollection new.
 
 	aWollokASTNode variables do: [ :e | self addVariable: e ].	
-	aWollokASTNode methods do: [ :e | self addMethod: e ].
+	aWollokASTNode methods do: [ :e | self addMethod: (WollokMethod fromAST: e) ].
 ]
 
 { #category : #initialization }
@@ -100,30 +103,7 @@ WollokClass >> instantiateUsing: aWollokInterpreter with: parameters [
 { #category : #'private - lookup' }
 WollokClass >> isMethod: aMethod forArguments: numberOfArguments [ 
 
-	| mandatoryArguments varArgArguments |
-	
-	"If we have the exact number of argument nothing more is required"
-	aMethod parameters size = numberOfArguments
-		ifTrue: [ ^ true ].
-		
-	mandatoryArguments := aMethod parameters count: [ :e | e isVarArg isNil ].
-	varArgArguments := aMethod parameters count: [ :e | e isVarArg isNotNil ].
-
-	"If we have exactly the mandatory arguments it can go"	
-	numberOfArguments = mandatoryArguments ifTrue: [ ^ true ].
-	
-	"If we have less than the mandatory arguments this is not the method"
-	numberOfArguments < mandatoryArguments ifTrue: [ ^ false ].
-	
-	varArgArguments > 1 
-		ifTrue: [ self error: 'I cannot handle more than one variadic arg' ].
-	
-	"If we have more than the mandatory arguments we should have a var arg"
-	
-	(numberOfArguments > mandatoryArguments and: [varArgArguments = 1]) 
-		ifTrue: [ ^ true ].	
-	
-	^ false
+	^ aMethod hasNumberOfArguments: numberOfArguments
 ]
 
 { #category : #properties }
@@ -153,9 +133,9 @@ WollokClass >> lookupSelector: aString usingArguments: numberOfArguments [
 
 	methods
 		detect: [ :aMethod |
-			aMethod name value = aString 
+			aMethod name = aString 
 			and: [ self isMethod: aMethod forArguments: numberOfArguments ] ]
-		ifFound: [ :aMethod | ^ { aMethod . self } ].
+		ifFound: [ :aMethod | ^ aMethod ].
 			
 	^ self superclass
 		ifNil: [ nil ]

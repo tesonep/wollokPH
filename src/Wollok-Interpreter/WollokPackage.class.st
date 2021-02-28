@@ -32,6 +32,7 @@ WollokPackage >> add: anElement [
 { #category : #children }
 WollokPackage >> addSuite: aWollokTestSuite [ 
 
+	self add: aWollokTestSuite.
 	suites add: aWollokTestSuite.
 	aWollokTestSuite parent: self
 ]

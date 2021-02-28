@@ -6,7 +6,6 @@ Class {
 		'receiver',
 		'selector',
 		'method',
-		'methodClass',
 		'arguments',
 		'hasReturned',
 		'returnValue',
@@ -83,16 +82,6 @@ WollokContext >> method: aWollokMethod [
 ]
 
 { #category : #accessing }
-WollokContext >> methodClass [
-	^ methodClass
-]
-
-{ #category : #accessing }
-WollokContext >> methodClass: anObject [
-	methodClass := anObject
-]
-
-{ #category : #accessing }
 WollokContext >> package [
 	
 	^ self receiver package
@@ -142,6 +131,7 @@ WollokContext >> returnValue: aWollokObject [
 
 { #category : #accessing }
 WollokContext >> selector: aString [ 
+
 	selector := aString
 ]
 

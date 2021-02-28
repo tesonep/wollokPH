@@ -24,6 +24,25 @@ WollokInterpreter >> accessProperty: aPropertyName receiver: aWollokObject argum
 			ifFalse: [ aWollokObject resolve: aPropertyName ]
 ]
 
+{ #category : #'sending messages' }
+WollokInterpreter >> activateMethod: methodToActivate withReceiver: aReceiver withArguments: argumentsToUse [
+	| context |
+	context := self
+		pushContextForSelector: nil
+		receiver: aReceiver
+		method: methodToActivate
+		methodClass: nil
+		withArguments: argumentsToUse.
+	methodToActivate native
+		ifNil: [ methodToActivate expressionReturns
+				ifNotNil: [ context
+						returnValue: (methodToActivate expression acceptVisitor: self) ]
+				ifNil: [ methodToActivate expression acceptVisitor: self ] ]
+		ifNotNil: [ self activatePrimitiveMethod ].
+	self popContext.
+	^ context
+]
+
 { #category : #'native objects' }
 WollokInterpreter >> activatePrimitiveMethod [
 	
@@ -346,9 +365,7 @@ WollokInterpreter >> pushContextForSelector: aSelector receiver: aReceiver metho
 	context := WollokContext new
 		sender: self currentContext;
 		method: aMethod;
-		methodClass: aMethodClass;
 		receiver: aReceiver;
-		selector: aSelector;
 		arguments: arguments;
 		returnValue: self voidObject;
 		yourself.
@@ -406,45 +423,35 @@ WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: argumen
 
 { #category : #'sending messages' }
 WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: arguments isSuperSend: aBoolean [
+	| context argumentsToUse lookupClass methodToActivate |
 
-	| methodClassPair context argumentsToUse selectorToUse lookupClass |
-	
+	"Handles MNU"
 	(aReceiver wollokClass isProperty: aSelector)
-		ifTrue: [ ^ self accessProperty: aSelector receiver: aReceiver arguments: arguments ].
-	
+		ifTrue: [ ^ self
+				accessProperty: aSelector
+				receiver: aReceiver
+				arguments: arguments ].
+
 	lookupClass := aBoolean
-		ifTrue: [ self currentContext methodClass superclass ]
+		ifTrue: [ self currentContext method methodClass superclass ]
 		ifFalse: [ aReceiver wollokClass ].
-	
-	methodClassPair := lookupClass
-		lookupSelector: aSelector 
+
+	methodToActivate := lookupClass
+		lookupSelector: aSelector
 		usingArguments: arguments size.
-	
+
 	argumentsToUse := arguments.
-	selectorToUse := aSelector.
-	
-	methodClassPair ifNil: [ "Handles MNU"
-		methodClassPair := aReceiver wollokClass
+	methodToActivate ifNil: [
+		methodToActivate := aReceiver wollokClass
 			lookupSelector: 'messageNotUnderstood'
 			usingArguments: 2.
-			
-		selectorToUse := 'messageNotUnderstood'.
-		argumentsToUse := { self asWollokString: aSelector. self asWollokList: arguments }].
-	
-	context := self pushContextForSelector: selectorToUse 
-			receiver: aReceiver
-			method: methodClassPair first
-			methodClass: methodClassPair second
-			withArguments: argumentsToUse.
-	
-	
-	methodClassPair first native ifNil: [ 		
-		methodClassPair first expressionReturns 
-			ifNotNil: [ context returnValue: (methodClassPair first expression acceptVisitor: self)]
-			ifNil:[ methodClassPair first expression acceptVisitor: self]]
-		ifNotNil: [ self activatePrimitiveMethod ].
-			
-	self popContext.
+		argumentsToUse := {(self asWollokString: aSelector).
+		(self asWollokList: arguments)} ].
+
+	context := self
+		activateMethod: methodToActivate
+		withReceiver: aReceiver
+		withArguments: argumentsToUse.
 	
 	^ context returnValue
 ]
