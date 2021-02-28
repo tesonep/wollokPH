@@ -28,3 +28,9 @@ WollokTestCase >> resolveBindingsUsing: aWollokInterpreter [
 
 	
 ]
+
+{ #category : #accessing }
+WollokTestCase >> suite [
+	
+	^ parent
+]

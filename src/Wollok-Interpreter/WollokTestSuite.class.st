@@ -29,6 +29,14 @@ WollokTestSuite >> initialize [
 ]
 
 { #category : #accessing }
+WollokTestSuite >> initializeFromAST: aWollokASTNode withName: aName [
+
+	super initializeFromAST: aWollokASTNode withName: aName.
+	
+	aWollokASTNode members do: [ :e | self addVariable: e ].
+]
+
+{ #category : #accessing }
 WollokTestSuite >> name [
 	
 	^ name ifNil: [ ast name value value]
@@ -43,7 +51,14 @@ WollokTestSuite >> name: aValue [
 { #category : #initialization }
 WollokTestSuite >> resolveBindingsUsing: aWollokInterpreter [ 
 
+	super resolveBindingsUsing: aWollokInterpreter.
 	tests do: [ :e | e resolveBindingsUsing: aWollokInterpreter]
+]
+
+{ #category : #accessing }
+WollokTestSuite >> superclassName [
+	"A test suite does not have a superclass"
+	^ nil
 ]
 
 { #category : #accessing }

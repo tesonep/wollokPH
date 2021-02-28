@@ -115,15 +115,12 @@ WollokContext >> resolve: aString [
 ]
 
 { #category : #resolving }
-WollokContext >> resolve: aName andPut: aValue [ 
-	
-	(arguments includesKey: aName) 
+WollokContext >> resolve: aName andPut: aValue inInterpreter: anInterpreter [
+	(arguments includesKey: aName)
 		ifTrue: [ ^ arguments at: aName put: aValue ].
-
-	(variables includesKey: aName) 
+	(variables includesKey: aName)
 		ifTrue: [ ^ variables at: aName put: aValue ].
-		
-	^ receiver resolve: aName andPut: aValue 
+	^ receiver resolve: aName andPut: aValue inInterpreter: anInterpreter
 ]
 
 { #category : #accessing }
