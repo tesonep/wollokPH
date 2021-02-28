@@ -14,3 +14,10 @@ WollokMainProgram >> name [
 
 	^ ast name value
 ]
+
+{ #category : #accessing }
+WollokMainProgram >> wollokClass [
+	
+	"The main method is not in any class... this is bad...."
+	^ nil
+]
