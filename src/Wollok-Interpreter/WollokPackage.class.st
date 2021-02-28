@@ -151,6 +151,11 @@ WollokPackage >> main: anObject [
 ]
 
 { #category : #accessing }
+WollokPackage >> name [
+	^ name
+]
+
+{ #category : #accessing }
 WollokPackage >> name: aString [ 
 	
 	name := aString

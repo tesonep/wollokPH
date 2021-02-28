@@ -48,14 +48,10 @@ WollokLoader >> doFileLookup: aWollokPackage [
 	| fqn currentFile |
 
 	fqn := aWollokPackage fullyQualifiedName.	
-	currentFile := self class libraryRootDirectory.
-		
-	fqn segments do: [ :aSegment | 
-			currentFile := currentFile / aSegment..
-			currentFile isDirectory ifFalse: [ 
-				currentFile := currentFile withExtension: self class libraryExtension.
-				currentFile exists ifFalse: [ self error: 'Couldn''t resolve ' , fqn printString ].
-				^ currentFile ]  ].
+	
+	self wollokClassPaths do: [ :aPath | 	
+		(self lookupPackage: fqn startingFrom: aPath)
+			ifNotNil: [:found | ^ found ]].
 		
 	self error: 'Couldn''t resolve ' , fqn printString
 ]
@@ -139,16 +135,31 @@ WollokLoader >> loadPackage: aWollokPackage [
 
 	aWollokPackage fileNode ifNil: [ 
 		aWollokPackage fileNode: (self parser parseFile:(self doFileLookup: aWollokPackage)) ].
+
+	self fillDefaultImports: aWollokPackage.
 	
 	packageStack push: aWollokPackage.
 	aWollokPackage fileNode acceptVisitor: self.
 	packageStack pop.
 
 	loadedPackages add: aWollokPackage.
-	
-	self fillDefaultImports: aWollokPackage.
-	
+		
 	aWollokPackage imports do: [ :anImport | self loadPackage: (self ensurePackageNamed: anImport) ].
+
+]
+
+{ #category : #'file lookup' }
+WollokLoader >> lookupPackage: fqn startingFrom: startingDirectory [
+
+	| currentFile |
+	currentFile := startingDirectory.
+
+	fqn segments do: [ :aSegment | 
+			currentFile := currentFile / aSegment.
+			currentFile isDirectory ifFalse: [ 
+				currentFile := currentFile withExtension: self class libraryExtension.
+				currentFile exists ifFalse: [ ^ nil ].
+				^ currentFile ]  ].
 
 ]
 
@@ -192,10 +203,35 @@ WollokLoader >> visitFile: aWollokFileNode [
 		self currentPackage main: aMain ]
 ]
 
+{ #category : #visiting }
+WollokLoader >> visitImport: aWollokImportNode [ 
+	
+	rootPackage imports add: aWollokImportNode importedNamespace qualifiedName asWollokQualifiedName 
+]
+
 { #category : #loading }
 WollokLoader >> visitNamedObject: aWollokNamedObjectNode [ 
 
 	^ WollokNamedObject fromAST: aWollokNamedObjectNode
+	
+]
+
+{ #category : #visiting }
+WollokLoader >> visitPackage: aWollokPackageNode [ 
+
+	| innerPackage |
+	
+	self assert: aWollokPackageNode name identifiers size = 1.
+	
+	innerPackage := WollokPackage new 
+			name: (aWollokPackageNode name identifiers at: 1) value
+			yourself.
+
+	self fillDefaultImports: innerPackage.
+	
+	aWollokPackageNode elements do: [ :e | self currentPackage add: (e acceptVisitor: self) ].
+			
+	^ innerPackage
 	
 ]
 
@@ -229,4 +265,19 @@ WollokLoader >> visitTest: aWollokTestNode [
 WollokLoader >> visitVariableDeclaration: aWollokVariableDeclarationNode [ 
 
 	^ WollokPackageVariable fromAST: aWollokVariableDeclarationNode
+]
+
+{ #category : #'file lookup' }
+WollokLoader >> wollokClassPaths [
+	
+	| rootDirectory |
+	
+	rootFile filename 
+		ifNil: [ ^ { self class libraryRootDirectory } ].
+	
+	rootDirectory := rootFile filename parent.
+	[rootDirectory children anySatisfy: [ :aChild | aChild basename = 'WOLLOK.ROOT' ]] 
+		whileFalse: [ rootDirectory := rootDirectory parent ].
+		
+	^ { rootFile filename parent. self class libraryRootDirectory. rootDirectory }
 ]
