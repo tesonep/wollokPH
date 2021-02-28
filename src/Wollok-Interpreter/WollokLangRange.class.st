@@ -11,6 +11,12 @@ WollokLangRange class >> wollokClassName [
 ]
 
 { #category : #'native methods' }
+WollokLangRange >> anyOne: aWollokObject [ 
+
+	^ interpreter asWollokNumber: aWollokObject asInterval atRandom
+]
+
+{ #category : #'native methods' }
 WollokLangRange >> forEach: aWollokObject with: aWollokClosure [ 
 
 	aWollokObject asInterval do: [ :e |
