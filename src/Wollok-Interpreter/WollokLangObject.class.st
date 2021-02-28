@@ -19,6 +19,12 @@ WollokLangObject >> checkNotNull: aReceiver with: aMaybeNull with: variableName 
 ]
 
 { #category : #'native methods' }
+WollokLangObject >> className: aWollokObject [ 
+	
+	^ interpreter asWollokString: aWollokObject wollokClass name
+]
+
+{ #category : #'native methods' }
 WollokLangObject >> generateDoesNotUnderstandMessage: aReceiver with: anObjectString with: aSelector with: numberOfArguments [ 
 
 	^ interpreter asWollokString: ('Instances of ' , aReceiver wollokClass fullyQualifiedName asString ,

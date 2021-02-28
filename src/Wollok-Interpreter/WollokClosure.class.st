@@ -65,3 +65,9 @@ WollokClosure >> resolve: aName andPut: aValue [
 
 	^ wollokClass resolve: aName inInstance: self andPut: aValue
 ]
+
+{ #category : #resolving }
+WollokClosure >> selfReceiver [
+
+	^ homeContext selfReceiver
+]

@@ -74,6 +74,12 @@ WollokObject >> resolve: aName andPut: aValue [
 ]
 
 { #category : #accessing }
+WollokObject >> selfReceiver [
+	
+	^ self
+]
+
+{ #category : #accessing }
 WollokObject >> wollokClass [
 	
 	^ wollokClass
