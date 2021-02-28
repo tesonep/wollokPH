@@ -272,6 +272,9 @@ WollokLoader >> wollokClassPaths [
 	
 	| rootDirectory |
 	
+	rootFile filename 
+		ifNil: [ ^ { self class libraryRootDirectory } ].
+	
 	rootDirectory := rootFile filename parent.
 	[rootDirectory children anySatisfy: [ :aChild | aChild basename = 'WOLLOK.ROOT' ]] 
 		whileFalse: [ rootDirectory := rootDirectory parent ].
