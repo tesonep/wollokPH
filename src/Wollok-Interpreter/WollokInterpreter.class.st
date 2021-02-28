@@ -258,7 +258,6 @@ WollokInterpreter >> interpretProgram: aWollokFileNode [
 
 	self pushContext: (WollokContext new
 		sender: self currentContext;
-		methodClass: rootPackage main wollokClass;
 		receiver: rootPackage main;
 		selector: rootPackage main name;
 		yourself).
