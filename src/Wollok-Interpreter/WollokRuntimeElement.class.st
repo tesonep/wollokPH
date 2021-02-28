@@ -53,6 +53,7 @@ WollokRuntimeElement >> parent [
 
 { #category : #accessing }
 WollokRuntimeElement >> parent: anObject [
+1haltIf: [ (self isKindOf: WollokClass) and: [ (anObject isKindOf: WollokPackage) not ] ].
 	parent := anObject
 ]
 

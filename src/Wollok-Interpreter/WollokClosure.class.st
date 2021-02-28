@@ -58,12 +58,10 @@ WollokClosure >> resolve: aName [
 ]
 
 { #category : #resolving }
-WollokClosure >> resolve: aName andPut: aValue [ 
-
+WollokClosure >> resolve: aName andPut: aValue inInterpreter: anInterpreter [
 	(homeContext hasVariable: aName)
-		ifTrue: [ ^ homeContext resolve: aName andPut: aValue ].
-
-	^ wollokClass resolve: aName inInstance: self andPut: aValue
+		ifTrue: [ ^ homeContext resolve: aName andPut: aValue inInterpreter: anInterpreter  ].
+	^ wollokClass resolve: aName inInstance: self andPut: aValue inInterpreter: anInterpreter
 ]
 
 { #category : #resolving }

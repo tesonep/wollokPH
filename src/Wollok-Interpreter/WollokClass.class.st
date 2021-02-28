@@ -209,15 +209,16 @@ WollokClass >> resolve: aString inInstance: aWollokObject [
 ]
 
 { #category : #resolving }
-WollokClass >> resolve: aName inInstance: anInstance andPut: aValue [ 
+WollokClass >> resolve: aName inInstance: anInstance andPut: aValue inInterpreter: anInterpreter [
 	
-	| index |
-	
-	index := self allVariables 
-		detectIndex: [ :aVariable | aVariable variable name value = aName ]
+	| allVariables variable |
+	allVariables := self allVariables.
+	variable := allVariables 
+		detect: [ :aVariable | aVariable variable name value = aName ]
 		ifNone: [ self notYetImplemented ].
-	
-	anInstance instanceVariables at: index put: aValue.
+	variable constToken ifNotNil: [ 
+		anInterpreter throwExceptionWithMessage: 'Invalid Assignment in const variable' ].
+	anInstance instanceVariables at: (allVariables indexOf: variable) put: aValue.
 	^ aValue
 ]
 
@@ -231,7 +232,7 @@ WollokClass >> resolveBindingsUsing: aWollokInterpreter [
 	self fullyQualifiedName = 'wollok.lang.Object' asWollokQualifiedName 
 		ifTrue: [ ^ self ].
 	
-	superclassName := ast superclass 
+	superclassName := self superclassName
 			ifNil: [ 'wollok.lang.Object' ] 
 			ifNotNil: [ :aFQN | aFQN asWollokQualifiedName ].
 		
@@ -265,6 +266,12 @@ WollokClass >> superclass [
 
 { #category : #accessing }
 WollokClass >> superclass: aWollokClass [ 
-	
+
 	superclass := aWollokClass
+]
+
+{ #category : #accessing }
+WollokClass >> superclassName [
+	
+	^ ast superclass
 ]

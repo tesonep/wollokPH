@@ -14,14 +14,16 @@ Class {
 }
 
 { #category : #'sending messages' }
-WollokInterpreter >> accessProperty: aPropertyName receiver: aWollokObject arguments: arguments [ 
-
+WollokInterpreter >> accessProperty: aPropertyName receiver: aWollokObject arguments: arguments [
 	"If it has an argument is a setter if not a getter"
 
-	^ arguments size = 1 
-			ifTrue: [ 	aWollokObject resolve: aPropertyName andPut: arguments first.
-								aWollokObject ]
-			ifFalse: [ aWollokObject resolve: aPropertyName ]
+	^ arguments size = 1
+		ifTrue: [ aWollokObject
+				resolve: aPropertyName
+				andPut: arguments first
+				inInterpreter: self.
+			aWollokObject ]
+		ifFalse: [ aWollokObject resolve: aPropertyName ]
 ]
 
 { #category : #'sending messages' }
@@ -126,7 +128,7 @@ WollokInterpreter >> createAnonymousClassForObjectLiteral: aWollokObjectLiteralN
 
 	^ WollokClass new 
 		initializeFromAST: aWollokObjectLiteralNode withName: '_AnonymousClass';
-		parent: self currentContext;
+		parent: self currentContext package;
 		superclass: superclass;
 		resolveBindingsUsing: self;
 		initializeStateUsing: self;
@@ -144,7 +146,7 @@ WollokInterpreter >> createAnonymousClasssForNamedObjectLiteral: aWollokObjectLi
 
 	^ WollokClass new 
 		initializeFromAST: aWollokObjectLiteralNode withName: '_' , aWollokObjectLiteralNode name value , 'Class';
-		parent: self currentContext;
+		parent: self currentContext package;
 		superclass: superclass;
 		yourself
 ]
@@ -286,7 +288,7 @@ WollokInterpreter >> interpretTest: aWollokTestCase storingResultsIn: aWollokTes
 
 	self
 		activateMethod: aWollokTestCase
-		withReceiver: aWollokTestCase
+		withReceiver: (aWollokTestCase suite instantiateUsing: self)
 		withArguments: #().
 
 	aWollokTestResult recordSuccessful: aWollokTestCase.
@@ -392,7 +394,7 @@ WollokInterpreter >> pushContextForSelector: aSelector receiver: aReceiver metho
 
 { #category : #'context creation' }
 WollokInterpreter >> pushInitializationContextFor: aWollokElement [
-	
+
 	self pushContext:
 			(WollokContext new
 				sender: self currentContext;
@@ -517,23 +519,29 @@ WollokInterpreter >> trueObject [
 ]
 
 { #category : #visiting }
-WollokInterpreter >> visitAssignment: aNode [ 
-	
+WollokInterpreter >> visitAssignment: aNode [
 	| value |
-	
 	value := aNode value acceptVisitor: self.
-	
-	aNode operation value = '+=' ifTrue: [ 
-		"Should reuse the same implementation as in WollokLangNumber >> add:with:"
-		self flag: #repeated.
-		value := self asWollokNumber: (self currentContext resolve: aNode variable name value) asNumber + value asNumber ].
-	
-	aNode operation value = '-=' ifTrue: [ 
-		"Should reuse the same implementation as in WollokLangNumber >> add:with:"
-		self flag: #repeated.
-		value := self asWollokNumber: (self currentContext resolve: aNode variable name value) asNumber - value asNumber ].
-	
-	self currentContext resolve: aNode variable name value andPut: value.
+	aNode operation value = '+='
+		ifTrue:
+			[ "Should reuse the same implementation as in WollokLangNumber >> add:with:"
+			self flag: #repeated.
+			value := self
+				asWollokNumber:
+					(self currentContext resolve: aNode variable name value) asNumber
+						+ value asNumber ].
+	aNode operation value = '-='
+		ifTrue:
+			[ "Should reuse the same implementation as in WollokLangNumber >> add:with:"
+			self flag: #repeated.
+			value := self
+				asWollokNumber:
+					(self currentContext resolve: aNode variable name value) asNumber
+						- value asNumber ].
+	self currentContext
+		resolve: aNode variable name value
+		andPut: value
+		inInterpreter: self.
 	^ value
 ]
 

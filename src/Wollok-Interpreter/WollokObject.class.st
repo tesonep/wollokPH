@@ -67,6 +67,12 @@ WollokObject >> instanceVariables: aCollection [
 	instanceVariables := aCollection
 ]
 
+{ #category : #accessing }
+WollokObject >> package [
+	
+	^ self wollokClass package
+]
+
 { #category : #resolving }
 WollokObject >> resolve: aString [ 
 	
@@ -74,9 +80,9 @@ WollokObject >> resolve: aString [
 ]
 
 { #category : #resolving }
-WollokObject >> resolve: aName andPut: aValue [ 
+WollokObject >> resolve: aName andPut: aValue inInterpreter: anInterpreter [ 
 
-	^ wollokClass resolve: aName inInstance: self andPut: aValue
+	^ wollokClass resolve: aName inInstance: self andPut: aValue inInterpreter: anInterpreter
 ]
 
 { #category : #accessing }
