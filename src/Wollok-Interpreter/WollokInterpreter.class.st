@@ -40,6 +40,19 @@ WollokInterpreter >> activatePrimitiveMethod [
 	nativeObject activateNativeContext: context.
 ]
 
+{ #category : #'native objects' }
+WollokInterpreter >> applyClosure: aWollokClosure withArguments: aCollection [
+
+	| arguments |
+	
+	arguments := self
+		distributeArguments: aCollection
+		intoParameters: aWollokClosure ast parameters.
+	
+	aWollokClosure arguments addAll: arguments.
+	^ aWollokClosure ast expression acceptVisitor: self
+]
+
 { #category : #'visiting - literals' }
 WollokInterpreter >> asWollokBoolean: aBoolean [
 
@@ -66,7 +79,7 @@ WollokInterpreter >> asWollokNumber: aNumber [
 
 	^ WollokInmediate new 
 		wollokClass: self numberClass;
-		instanceVariables: {aNumber};
+		instanceVariables: {aNumber asScaledDecimal round: 5};
 		yourself
 ]
 
@@ -209,6 +222,7 @@ WollokInterpreter >> interpretProgram: aWollokFileNode [
 
 	self pushContext: (WollokContext new
 		sender: self currentContext;
+		methodClass: rootPackage main wollokClass;
 		receiver: rootPackage main;
 		selector: rootPackage main name;
 		yourself).
@@ -323,7 +337,7 @@ WollokInterpreter >> pushContext: aCreationContext [
 ]
 
 { #category : #'context creation' }
-WollokInterpreter >> pushContextForSelector: aSelector receiver: aReceiver method: aMethod withArguments: aCollection [ 
+WollokInterpreter >> pushContextForSelector: aSelector receiver: aReceiver method: aMethod methodClass: aMethodClass withArguments: aCollection [ 
 	
 	| context arguments |
 	
@@ -332,6 +346,7 @@ WollokInterpreter >> pushContextForSelector: aSelector receiver: aReceiver metho
 	context := WollokContext new
 		sender: self currentContext;
 		method: aMethod;
+		methodClass: aMethodClass;
 		receiver: aReceiver;
 		selector: aSelector;
 		arguments: arguments;
@@ -386,20 +401,30 @@ WollokInterpreter >> rootPaths [
 { #category : #'sending messages' }
 WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: arguments [ 
 
-	| aMethod context argumentsToUse selectorToUse |
+	^ self sendMessage: aSelector to: aReceiver withArguments: arguments isSuperSend: false
+]
+
+{ #category : #'sending messages' }
+WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: arguments isSuperSend: aBoolean [
+
+	| methodClassPair context argumentsToUse selectorToUse lookupClass |
 	
 	(aReceiver wollokClass isProperty: aSelector)
 		ifTrue: [ ^ self accessProperty: aSelector receiver: aReceiver arguments: arguments ].
 	
-	aMethod := aReceiver wollokClass 
+	lookupClass := aBoolean
+		ifTrue: [ self currentContext methodClass superclass ]
+		ifFalse: [ aReceiver wollokClass ].
+	
+	methodClassPair := lookupClass
 		lookupSelector: aSelector 
 		usingArguments: arguments size.
 	
 	argumentsToUse := arguments.
 	selectorToUse := aSelector.
 	
-	aMethod ifNil: [ "Handles MNU"
-		aMethod := aReceiver wollokClass
+	methodClassPair ifNil: [ "Handles MNU"
+		methodClassPair := aReceiver wollokClass
 			lookupSelector: 'messageNotUnderstood'
 			usingArguments: 2.
 			
@@ -408,19 +433,20 @@ WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: argumen
 	
 	context := self pushContextForSelector: selectorToUse 
 			receiver: aReceiver
-			method: aMethod
+			method: methodClassPair first
+			methodClass: methodClassPair second
 			withArguments: argumentsToUse.
 	
 	
-	aMethod native ifNil: [ 		
-		aMethod expressionReturns 
-			ifNotNil: [ context returnValue: (aMethod expression acceptVisitor: self)]
-			ifNil:[ aMethod expression acceptVisitor: self]]
+	methodClassPair first native ifNil: [ 		
+		methodClassPair first expressionReturns 
+			ifNotNil: [ context returnValue: (methodClassPair first expression acceptVisitor: self)]
+			ifNil:[ methodClassPair first expression acceptVisitor: self]]
 		ifNotNil: [ self activatePrimitiveMethod ].
 			
 	self popContext.
 	
-	^ context returnValue.
+	^ context returnValue
 ]
 
 { #category : #exceptions }
@@ -475,6 +501,16 @@ WollokInterpreter >> visitAssignment: aNode [
 	| value |
 	
 	value := aNode value acceptVisitor: self.
+	
+	aNode operation value = '+=' ifTrue: [ 
+		"Should reuse the same implementation as in WollokLangNumber >> add:with:"
+		self flag: #repeated.
+		value := self asWollokNumber: (self currentContext resolve: aNode variable name value) asNumber + value asNumber ].
+	
+	aNode operation value = '-=' ifTrue: [ 
+		"Should reuse the same implementation as in WollokLangNumber >> add:with:"
+		self flag: #repeated.
+		value := self asWollokNumber: (self currentContext resolve: aNode variable name value) asNumber - value asNumber ].
 	
 	self currentContext resolve: aNode variable name value andPut: value.
 	^ value
@@ -649,6 +685,23 @@ WollokInterpreter >> visitStringLiteral: aWollokStringLiteralNode [
 	^ self asWollokString: (aWollokStringLiteralNode value value copyWithout: $").
 
 
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitSuperInvocation: aWollokSuperInvocationNode [ 
+	
+	| receiver arguments |
+	
+	receiver := self currentContext receiver.
+	arguments := aWollokSuperInvocationNode arguments collect: [:anArgument | anArgument acceptVisitor: self].
+	
+	self assert: (aWollokSuperInvocationNode parent parent isKindOf: WollokMethodDeclarationNode).
+	
+	^ self
+		sendMessage: aWollokSuperInvocationNode parent parent name value
+		to: receiver
+		withArguments: arguments
+		isSuperSend: true
 ]
 
 { #category : #visiting }

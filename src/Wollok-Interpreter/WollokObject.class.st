@@ -31,6 +31,12 @@ WollokObject >> asDate [
 ]
 
 { #category : #converting }
+WollokObject >> asInterval [
+	
+	^ (instanceVariables at: 1) asNumber asInteger to: (instanceVariables at: 2) asNumber asInteger
+]
+
+{ #category : #converting }
 WollokObject >> asNumber [
 	
 	self assert: (instanceVariables size = 1).

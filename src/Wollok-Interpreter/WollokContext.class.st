@@ -6,6 +6,7 @@ Class {
 		'receiver',
 		'selector',
 		'method',
+		'methodClass',
 		'arguments',
 		'hasReturned',
 		'returnValue',
@@ -79,6 +80,16 @@ WollokContext >> method: aWollokMethod [
 
 	method := aWollokMethod
 	
+]
+
+{ #category : #accessing }
+WollokContext >> methodClass [
+	^ methodClass
+]
+
+{ #category : #accessing }
+WollokContext >> methodClass: anObject [
+	methodClass := anObject
 ]
 
 { #category : #accessing }
