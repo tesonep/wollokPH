@@ -17,7 +17,7 @@ WollokNamedObject >> assignedValue [
 		
 			wollokClass
 				runConstructorOn: object 
-				parameters: Dictionary new
+				arguments: WollokConstructorArguments empty
 				allVariables: wollokClass allVariables
 				interpreter: interpreter.
 				

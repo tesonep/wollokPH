@@ -195,6 +195,25 @@ WollokInterpreter >> falseObject [
 				yourself ]
 ]
 
+{ #category : #visiting }
+WollokInterpreter >> handleCatchException: aWollokException forTryNode: aWollokTryNode [
+
+	| catchClosure |
+
+	aWollokTryNode catchBlocks size = 0 ifTrue: [ ^ self ].
+
+	aWollokTryNode catchBlocks size > 1
+		ifTrue: [ self notYetImplemented ].
+
+	catchClosure := aWollokTryNode catchBlocks first acceptVisitor: self.
+
+	catchClosure
+		argumentAt: aWollokTryNode catchBlocks first exceptionVarName name value
+		put: aWollokException.
+
+	^ self sendMessage: 'apply' to: catchClosure withArguments: {}
+]
+
 { #category : #'private - visiting' }
 WollokInterpreter >> handleDoubleAnd: aNode [ 
 	
@@ -337,6 +356,8 @@ WollokInterpreter >> popContext [
 
 { #category : #'context creation' }
 WollokInterpreter >> popContextUntil: aWollokContext [ 
+	
+	self assert: (contextStack includes: aWollokContext).
 	
 	[ self currentContext = aWollokContext ]
 		whileFalse: [ self popContext ].
@@ -580,12 +601,9 @@ WollokInterpreter >> visitConstructorCall: aWollokConstructorCallNode [
 	| aClass arguments |
 	aClass := self resolve: aWollokConstructorCallNode classRef asWollokQualifiedName.
 
-	arguments := aWollokConstructorCallNode argumentList 
-		ifNil: [Dictionary new] 
-		ifNotNil: [ 
-			WollokConstructorArgumentVisitor 
-				extractArguments: aWollokConstructorCallNode argumentList
-				using: self  ].
+	arguments := WollokConstructorArguments 
+								extractArguments: aWollokConstructorCallNode argumentList
+								using: self.
 
 	^ aClass instantiateUsing: self with: arguments
 ]
@@ -676,7 +694,7 @@ WollokInterpreter >> visitReturnExpression: aNode [
 { #category : #visiting }
 WollokInterpreter >> visitSelf: aWollokSelfNode [ 
 	
-	^ self currentContext receiver
+	^ self currentContext selfReceiver
 ]
 
 { #category : #'visiting - literals' }
@@ -715,31 +733,22 @@ WollokInterpreter >> visitThrow: aNode [
 { #category : #visiting }
 WollokInterpreter >> visitTry: aWollokTryNode [
 	| aClosure tryContext |
-
 	tryContext := self currentContext.
-
-	[ [ aClosure := aWollokTryNode expression acceptVisitor: self.
-	self sendMessage: 'apply' to: aClosure withArguments: {} ]
+	[	aClosure := aWollokTryNode expression acceptVisitor: self.
+		self sendMessage: 'apply' to: aClosure withArguments: {} ]
 		on: WollokError
 		do: [ :e | 
-			| aWollokException catchClosure |
+			| aWollokException |
 			aWollokException := e wollokException.
-
 			self popContextUntil: tryContext.
-			
-			(aWollokTryNode catchBlocks size > 1) ifTrue: [self notYetImplemented].
 
-			catchClosure := aWollokTryNode catchBlocks first
-				acceptVisitor: self.
-
-			catchClosure
-				argumentAt: aWollokTryNode catchBlocks first exceptionVarName name value
-				put: aWollokException.
-
-			self sendMessage: 'apply' to: catchClosure withArguments: {} ] ]
-		ensure: [ 
-			self popContextUntil: tryContext.
-			aWollokTryNode alwaysExpression ifNotNil: [ self notYetImplemented  ] ]
+			self
+				handleCatchException: aWollokException
+				forTryNode: aWollokTryNode.
+				
+			aWollokTryNode alwaysExpression
+				ifNotNil: [ self popContextUntil: tryContext.
+					self notYetImplemented ] ] 
 ]
 
 { #category : #visiting }

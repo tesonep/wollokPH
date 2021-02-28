@@ -136,6 +136,12 @@ WollokContext >> selector: aString [
 ]
 
 { #category : #accessing }
+WollokContext >> selfReceiver [
+
+	^ receiver selfReceiver
+]
+
+{ #category : #accessing }
 WollokContext >> sender [
 	^ sender
 ]
