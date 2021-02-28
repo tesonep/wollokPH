@@ -31,6 +31,12 @@ WollokLangNumber >> coerceToInteger: aWollokInmediate [
 ]
 
 { #category : #'native methods' }
+WollokLangNumber >> coerceToPositiveInteger: aWollokInmediate [ 
+
+	^ interpreter asWollokNumber: aWollokInmediate asNumber asInteger abs
+]
+
+{ #category : #'native methods' }
 WollokLangNumber >> division: aWollokInmediate with: aWollokInmediate2 [ 
 
 	aWollokInmediate2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
