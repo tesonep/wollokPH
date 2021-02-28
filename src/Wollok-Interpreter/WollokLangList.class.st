@@ -72,7 +72,16 @@ WollokLangList >> join: aWollokInmediate with: aWollokInmediate2 [
 { #category : #'native methods' }
 WollokLangList >> max: aWollokInmediate [ 
 	
+	self checkNumber: aWollokInmediate name: 'arg'.
 	^ interpreter asWollokNumber: (aWollokInmediate unbox max: [ :a | a unbox ])
+]
+
+{ #category : #'native methods' }
+WollokLangList >> remove: aWollokInmediate with: aWollokInmediate2 [ 
+	
+	(aWollokInmediate unbox includes: aWollokInmediate2)
+		ifFalse: [ self halt ].
+	^ aWollokInmediate unbox remove: aWollokInmediate2
 ]
 
 { #category : #'native methods' }
