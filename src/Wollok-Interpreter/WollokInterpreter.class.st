@@ -52,7 +52,7 @@ WollokInterpreter >> activatePrimitiveMethod [
 	context method native 
 		ifNil: [self error: 'The current method is not a native one'].
 	
-	nativeObject := context receiver wollokClass lookupNativeObjectForMethod: context method name value.
+	nativeObject := context receiver wollokClass lookupNativeObjectForMethod: context method name.
 	
 	nativeObject ifNil: [ self error: 'Could not find the native object for ' , context receiver wollokClass fullyQualifiedName asString ].
 	

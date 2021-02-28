@@ -14,7 +14,6 @@ WollokTestCase >> interpretOn: aWollokInterpreter [
 { #category : #accessing }
 WollokTestCase >> name [
 	
-	1halt.
 	^ ast name value value
 ]
 
