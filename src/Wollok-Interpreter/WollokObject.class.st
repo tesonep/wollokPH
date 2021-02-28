@@ -86,6 +86,12 @@ WollokObject >> selfReceiver [
 ]
 
 { #category : #accessing }
+WollokObject >> unbox [
+	
+	^ self instanceVariables at: 1
+]
+
+{ #category : #accessing }
 WollokObject >> wollokClass [
 	
 	^ wollokClass

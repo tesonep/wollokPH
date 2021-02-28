@@ -11,6 +11,12 @@ WollokLangList class >> wollokClassName [
 ]
 
 { #category : #'native methods' }
+WollokLangList >> add: aWollokInmediate with: aWollokInmediate2 [ 
+	
+	^ aWollokInmediate unbox add: aWollokInmediate2
+]
+
+{ #category : #'native methods' }
 WollokLangList >> fold: aWollokList with: anInitialValue with: aWollokClosure [ 
 
 	^ aWollokList asCollection 

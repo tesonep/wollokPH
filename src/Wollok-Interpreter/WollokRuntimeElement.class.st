@@ -61,3 +61,15 @@ WollokRuntimeElement >> resolve: aName [
 	
 	^ self parent resolve: aName
 ]
+
+{ #category : #accessing }
+WollokRuntimeElement >> source [
+	
+	^ ast source
+]
+
+{ #category : #accessing }
+WollokRuntimeElement >> sourceInterval [
+	
+	^ ast sourceInterval
+]

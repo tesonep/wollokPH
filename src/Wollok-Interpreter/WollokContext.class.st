@@ -88,6 +88,14 @@ WollokContext >> package [
 ]
 
 { #category : #accessing }
+WollokContext >> printOn: aStream [
+
+	aStream nextPutAll: 'WollokContext('.
+	aStream nextPutAll: self selector asString.
+	aStream nextPutAll: ')'
+]
+
+{ #category : #accessing }
 WollokContext >> receiver [
 	^ receiver
 ]
@@ -127,6 +135,12 @@ WollokContext >> returnValue [
 WollokContext >> returnValue: aWollokObject [ 
 	
 	returnValue := aWollokObject 
+]
+
+{ #category : #accessing }
+WollokContext >> selector [
+
+	^ selector ifNil: [ method name ]
 ]
 
 { #category : #accessing }
