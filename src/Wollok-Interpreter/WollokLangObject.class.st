@@ -41,6 +41,7 @@ WollokLangObject >> identity: aWollokObject [
 WollokLangObject >> kindName: aWollokObject [ 
 
 	| title |
+	
 	title := aWollokObject wollokClass name.
 
 	^ interpreter asWollokString: (title first isVowel ifTrue: ['an '] ifFalse: ['a ']) , title

@@ -56,3 +56,9 @@ WollokLangString >> toString: aWollokObject [
 	"This is already an String"
 	^ aWollokObject
 ]
+
+{ #category : #'native methods' }
+WollokLangString >> trim: aWollokInmediate [ 
+
+	^ interpreter asWollokString: aWollokInmediate asPharoString trim
+]

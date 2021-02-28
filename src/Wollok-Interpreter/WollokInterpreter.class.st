@@ -138,17 +138,22 @@ WollokInterpreter >> createAnonymousClassForObjectLiteral: aWollokObjectLiteralN
 { #category : #'anonymous classes' }
 WollokInterpreter >> createAnonymousClasssForNamedObjectLiteral: aWollokObjectLiteralNode [ 
 
-	| superclassName superclass |
+	| superclassName superclass aClass nativeObject |
 	
 	superclassName := aWollokObjectLiteralNode superclass ifNil: [WollokClass defaultSuperclassName].
 
 	superclass := self currentContext resolve: superclassName.
 
-	^ WollokClass new 
+	aClass := WollokClass new 
 		initializeFromAST: aWollokObjectLiteralNode withName: '_' , aWollokObjectLiteralNode name value , 'Class';
 		parent: self currentContext package;
 		superclass: superclass;
-		yourself
+		yourself.
+
+	nativeObject := self lookupNativeObjectFor: aClass.
+	aClass nativeObject: nativeObject.	
+
+	^ aClass.
 ]
 
 { #category : #'context creation' }
@@ -523,12 +528,8 @@ WollokInterpreter >> visitAssignment: aNode [
 	value := aNode value acceptVisitor: self.
 	aNode operation value = '+='
 		ifTrue:
-			[ "Should reuse the same implementation as in WollokLangNumber >> add:with:"
-			self flag: #repeated.
-			value := self
-				asWollokNumber:
-					(self currentContext resolve: aNode variable name value) asNumber
-						+ value asNumber ].
+			[	value := self sendMessage: '+' to: (self currentContext resolve: aNode variable name value) withArguments: { value } ].
+			
 	aNode operation value = '-='
 		ifTrue:
 			[ "Should reuse the same implementation as in WollokLangNumber >> add:with:"
