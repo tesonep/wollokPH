@@ -33,7 +33,9 @@ WollokObject >> asDate [
 { #category : #converting }
 WollokObject >> asInterval [
 	
-	^ (instanceVariables at: 1) asNumber asInteger to: (instanceVariables at: 2) asNumber asInteger
+	^ (instanceVariables at: 1) asNumber asInteger
+		to: (instanceVariables at: 2) asNumber asInteger
+		by: (instanceVariables at: 3) asNumber asInteger
 ]
 
 { #category : #converting }
