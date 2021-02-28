@@ -27,18 +27,16 @@ WollokInterpreter >> accessProperty: aPropertyName receiver: aWollokObject argum
 { #category : #'sending messages' }
 WollokInterpreter >> activateMethod: methodToActivate withReceiver: aReceiver withArguments: argumentsToUse [
 	| context |
+	
 	context := self
 		pushContextForSelector: nil
 		receiver: aReceiver
 		method: methodToActivate
 		methodClass: nil
 		withArguments: argumentsToUse.
-	methodToActivate native
-		ifNil: [ methodToActivate expressionReturns
-				ifNotNil: [ context
-						returnValue: (methodToActivate expression acceptVisitor: self) ]
-				ifNil: [ methodToActivate expression acceptVisitor: self ] ]
-		ifNotNil: [ self activatePrimitiveMethod ].
+	
+	methodToActivate interpretOn: self.
+
 	self popContext.
 	^ context
 ]
@@ -267,16 +265,11 @@ WollokInterpreter >> interpretSuite: aWollokTestSuite storingResultsIn: aWollokT
 { #category : #'api - interpreting' }
 WollokInterpreter >> interpretTest: aWollokTestCase storingResultsIn: aWollokTestResult [ 
 
-	self pushContext: (WollokContext new
-			sender: self currentContext;
-			receiver: aWollokTestCase;
-			selector: aWollokTestCase name;
-			yourself).
+	self
+		activateMethod: aWollokTestCase
+		withReceiver: aWollokTestCase
+		withArguments: #().
 
-	aWollokTestCase ast elements do: [ :e | e acceptVisitor: self ].
-	
-	self popContext.
-	
 	aWollokTestResult recordSuccessful: aWollokTestCase.
 ]
 

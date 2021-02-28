@@ -48,6 +48,17 @@ WollokMethod >> hasNumberOfArguments: numberOfArguments [
 	^ false
 ]
 
+{ #category : #interpreting }
+WollokMethod >> interpretOn: aWollokInterpreter [ 
+
+	self native
+		ifNil: [ | result |
+			result := self expression acceptVisitor: aWollokInterpreter.
+			self expressionReturns ifNotNil: [ aWollokInterpreter currentContext returnValue: result ] ]
+		ifNotNil: [ 
+			aWollokInterpreter activatePrimitiveMethod ].
+]
+
 { #category : #accessing }
 WollokMethod >> methodClass [
 	
