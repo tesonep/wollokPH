@@ -60,6 +60,13 @@ WollokObject >> assignedValue [
 ]
 
 { #category : #accessing }
+WollokObject >> box: aValue [
+	
+	self instanceVariables at: 1 put: aValue.
+	^ self
+]
+
+{ #category : #accessing }
 WollokObject >> instanceVariables [
 	^ instanceVariables
 ]
