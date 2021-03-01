@@ -106,9 +106,10 @@ WollokRunSanityTests >> testExecuteSanityTest [
 
 	testResult := WollokTestResult new.
 	
-	interpreter interpretTest: wollokTestCase storingResultsIn: testResult.
+	[interpreter interpretTest: wollokTestCase storingResultsIn: testResult]
+		on: WollokError do: [ :e |
+			(e wollokException wollokClass = (interpreter resolve: 'wollok.lib.AssertionException'))
+				ifFalse: [ e pass ].
+			self fail: e wollokException unbox unbox ]
 	
-	self assert: testResult errors size equals: 0.
-	self assert: testResult failures size equals: 0.	
-
 ]
