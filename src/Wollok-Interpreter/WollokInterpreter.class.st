@@ -220,20 +220,16 @@ WollokInterpreter >> falseObject [
 { #category : #visiting }
 WollokInterpreter >> handleCatchException: aWollokException forTryNode: aWollokTryNode [
 
-	| catchClosure |
-
 	aWollokTryNode catchBlocks size = 0 ifTrue: [ ^ self ].
 
 	aWollokTryNode catchBlocks size > 1
 		ifTrue: [ self notYetImplemented ].
 
-	catchClosure := aWollokTryNode catchBlocks first acceptVisitor: self.
+	self currentContext
+		declareVariable: aWollokTryNode catchBlocks first exceptionVarName name value
+		withValue: aWollokException.
 
-	catchClosure
-		argumentAt: aWollokTryNode catchBlocks first exceptionVarName name value
-		put: aWollokException.
-
-	^ self sendMessage: 'apply' to: catchClosure withArguments: {}
+	^ self visitMaybeClosureAsBlock: aWollokTryNode catchBlocks first expression
 ]
 
 { #category : #'private - visiting' }
@@ -787,23 +783,20 @@ WollokInterpreter >> visitThrow: aNode [
 
 { #category : #visiting }
 WollokInterpreter >> visitTry: aWollokTryNode [
-	| aClosure tryContext |
+	| tryContext result |
 	tryContext := self currentContext.
-	[	aClosure := aWollokTryNode expression acceptVisitor: self.
-		^ self sendMessage: 'apply' to: aClosure withArguments: {} ]
+	[[ result := self visitMaybeClosureAsBlock: aWollokTryNode expression ]
 		on: WollokError
-		do: [ :e | | result aWollokException |
+		do: [ :e | | aWollokException |
 			aWollokException := e wollokException.
 			self popContextUntil: tryContext.
-
 			result := self
 				handleCatchException: aWollokException
-				forTryNode: aWollokTryNode.
-				
-			aWollokTryNode alwaysExpression
-				ifNotNil: [ self popContextUntil: tryContext.
-					self notYetImplemented ].
-			^ result ] 
+				forTryNode: aWollokTryNode ]]
+			ensure: [
+				aWollokTryNode alwaysExpression ifNotNil: [
+					self visitMaybeClosureAsBlock: aWollokTryNode alwaysExpression ] ].
+		 ^ result
 ]
 
 { #category : #visiting }
