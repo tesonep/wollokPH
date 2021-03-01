@@ -790,20 +790,20 @@ WollokInterpreter >> visitTry: aWollokTryNode [
 	| aClosure tryContext |
 	tryContext := self currentContext.
 	[	aClosure := aWollokTryNode expression acceptVisitor: self.
-		self sendMessage: 'apply' to: aClosure withArguments: {} ]
+		^ self sendMessage: 'apply' to: aClosure withArguments: {} ]
 		on: WollokError
-		do: [ :e | 
-			| aWollokException |
+		do: [ :e | | result aWollokException |
 			aWollokException := e wollokException.
 			self popContextUntil: tryContext.
 
-			self
+			result := self
 				handleCatchException: aWollokException
 				forTryNode: aWollokTryNode.
 				
 			aWollokTryNode alwaysExpression
 				ifNotNil: [ self popContextUntil: tryContext.
-					self notYetImplemented ] ] 
+					self notYetImplemented ].
+			^ result ] 
 ]
 
 { #category : #visiting }
