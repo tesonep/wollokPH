@@ -17,6 +17,12 @@ WollokLangList >> add: aWollokInmediate with: aWollokInmediate2 [
 ]
 
 { #category : #'native methods' }
+WollokLangList >> clear: aWollokInmediate [ 
+	
+	^ aWollokInmediate box: OrderedCollection new
+]
+
+{ #category : #'native methods' }
 WollokLangList >> contains: aWollokInmediate with: aWollokInmediate2 [ 
 	
 	^ interpreter asWollokBoolean: (aWollokInmediate unbox includes: aWollokInmediate2)
@@ -53,7 +59,7 @@ WollokLangList >> findOrElse: aWollokList with: aWollokClosure with: aWollokClos
 { #category : #'native methods' }
 WollokLangList >> fold: aWollokList with: anInitialValue with: aWollokClosure [ 
 
-	^ aWollokList asCollection 
+	^ aWollokList asCollection copy
 		inject: anInitialValue 
 		into: [ :accum :anItem | 
 			interpreter sendMessage: 'apply' 
@@ -63,7 +69,18 @@ WollokLangList >> fold: aWollokList with: anInitialValue with: aWollokClosure [
 { #category : #'native methods' }
 WollokLangList >> get: aReceiver with: aWollokNumber [
 
-	^ aReceiver asCollection at: aWollokNumber asNumber + 1
+	| indexToUse |
+	self checkIntegerNumber: aWollokNumber name: 'at'.
+
+	indexToUse := aWollokNumber unbox asInteger + 1.
+
+	indexToUse < 1
+		ifTrue: [ interpreter throwExceptionWithMessage: 'Index out of bounds' ].
+
+	indexToUse > aReceiver asCollection size
+		ifTrue: [ interpreter throwExceptionWithMessage: 'Index out of bounds' ].
+
+	^ aReceiver asCollection at: indexToUse
 ]
 
 { #category : #'native methods' }
@@ -75,7 +92,9 @@ WollokLangList >> join: aWollokInmediate with: aWollokInmediate2 [
 { #category : #'native methods' }
 WollokLangList >> max: aWollokInmediate [ 
 	
-	self checkNumber: aWollokInmediate name: 'arg'.
+	aWollokInmediate unbox isEmpty 
+		ifTrue: [ interpreter throwExceptionWithMessage: 'Cannot calculate max value in an empty List' ].
+		
 	^ interpreter asWollokNumber: (aWollokInmediate unbox max: [ :a | a unbox ])
 ]
 
@@ -101,4 +120,20 @@ WollokLangList >> sortBy: aWollokList with: aWollokClosure [
 	aWollokList asCollection 
 		sort: [ :a :b | (interpreter sendMessage: 'apply' to: aWollokClosure withArguments: { a . b }) unbox ].
 	^ aWollokList
+]
+
+{ #category : #'native methods' }
+WollokLangList >> withoutDuplicates: aWollokList [ 
+	
+	| original proccessed |
+	
+	original := aWollokList unbox.
+	proccessed := Set new.
+	
+	^ interpreter asWollokList: (original select: [ :e | | toInclude |
+		toInclude := (proccessed includes: e) not.
+		proccessed add: e.
+		toInclude ]).
+	
+	
 ]

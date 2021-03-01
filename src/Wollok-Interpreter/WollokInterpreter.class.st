@@ -9,7 +9,8 @@ Class {
 		'nullObject',
 		'falseObject',
 		'numberClass',
-		'booleanClass'
+		'booleanClass',
+		'stringClass'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -119,12 +120,8 @@ WollokInterpreter >> asWollokSet: elements [
 { #category : #'visiting - literals' }
 WollokInterpreter >> asWollokString: aString [
 
-	| stringClass |
-
-	stringClass := self currentContext resolve: 'wollok.lang.String'.
-
 	^ WollokInmediate new 
-		wollokClass: stringClass;
+		wollokClass: self stringClass;
 		instanceVariables: {aString};
 		yourself	
 
@@ -514,6 +511,12 @@ WollokInterpreter >> sendMessage: aSelector to: aReceiver withArguments: argumen
 		withArguments: argumentsToUse.
 	
 	^ context returnValue
+]
+
+{ #category : #accessing }
+WollokInterpreter >> stringClass [
+	
+	^ stringClass ifNil: [ stringClass := self resolve: 'wollok.lang.String' ]
 ]
 
 { #category : #exceptions }

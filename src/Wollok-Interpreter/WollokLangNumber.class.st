@@ -131,9 +131,15 @@ WollokLangNumber >> raiseTo: aReceiver with: anotherObject [
 { #category : #'native methods' }
 WollokLangNumber >> randomUpTo: aWollokInmediate with: aWollokInmediate2 [ 
 	
+	| randomNumber |
 	aWollokInmediate2 wollokClass = (interpreter resolve: 'wollok.lang.Number')
 		ifFalse: [ ^ interpreter throwExceptionWithMessage: 'Invalid number argument' ].
-	^ interpreter asWollokNumber: (aWollokInmediate asNumber asInteger to: aWollokInmediate2 asNumber asInteger) atRandom
+
+  randomNumber := aWollokInmediate asNumber + 
+			(SharedRandom globalGenerator next * (aWollokInmediate2 asNumber - aWollokInmediate asNumber)).
+
+
+	^ interpreter asWollokNumber: randomNumber
 ]
 
 { #category : #'native methods' }
