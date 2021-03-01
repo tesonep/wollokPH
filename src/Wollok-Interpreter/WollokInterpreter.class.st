@@ -544,15 +544,15 @@ WollokInterpreter >> throwExceptionWithMessage: aString [
 ]
 
 { #category : #signalling }
-WollokInterpreter >> throwExceptionWithMessage: aWollokString exceptionClassName: aString [
+WollokInterpreter >> throwExceptionWithMessage: aString exceptionClassName: wollokClassName [
 	
 	| exceptionClass anException |
 	
-	exceptionClass := self currentContext resolve: aString.
+	exceptionClass := self currentContext resolve: wollokClassName.
 
 	anException := WollokObject new 
 		wollokClass: exceptionClass;
-		instanceVariables: {aWollokString. nullObject };
+		instanceVariables: {self asWollokString: aString. nullObject };
 		yourself.
 		
 	self throwException: anException
@@ -600,7 +600,7 @@ WollokInterpreter >> visitBinaryOperation: aNode [
 	operator asSymbol = #|| ifTrue: [ ^ self handleDoubleOr: aNode ].
 
 	left := aNode leftOperand acceptVisitor: self.
-	right := aNode rightOperand acceptVisitor: self.	
+	right := aNode rightOperand acceptVisitor: self.
 
 	^ self 
 		sendMessage: operator
