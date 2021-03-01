@@ -106,7 +106,6 @@ WollokRunSanityTests >> testExecuteSanityTest [
 
 	testResult := WollokTestResult new.
 	
-	suite fixture ifNotNil: [:aFixture | interpreter interpretFixture: aFixture ].
 	interpreter interpretTest: wollokTestCase storingResultsIn: testResult.
 	
 	self assert: testResult errors size equals: 0.
