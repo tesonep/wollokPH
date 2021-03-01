@@ -218,18 +218,28 @@ WollokInterpreter >> falseObject [
 ]
 
 { #category : #visiting }
-WollokInterpreter >> handleCatchException: aWollokException forTryNode: aWollokTryNode [
+WollokInterpreter >> handleCatchException: aPharoException forTryNode: aWollokTryNode [
 
+	| catchBlockStream currentCatchBlock wollokException |
 	aWollokTryNode catchBlocks size = 0 ifTrue: [ ^ self ].
+	wollokException := aPharoException wollokException.
+	
+	catchBlockStream := aWollokTryNode catchBlocks readStream.
+	currentCatchBlock := catchBlockStream next.
+	[ currentCatchBlock isNil
+		or: [currentCatchBlock exceptionType isNil
+		or: [ (self resolve: currentCatchBlock exceptionType) 
+			= wollokException wollokClass ]] ] whileFalse: [ 
+		currentCatchBlock := catchBlockStream next ].
 
-	aWollokTryNode catchBlocks size > 1
-		ifTrue: [ self notYetImplemented ].
+	"If no catch block matched, rethrow"
+	currentCatchBlock ifNil: [ aPharoException pass ].
 
 	self currentContext
-		declareVariable: aWollokTryNode catchBlocks first exceptionVarName name value
-		withValue: aWollokException.
+		declareVariable: currentCatchBlock exceptionVarName name value
+		withValue: wollokException.
 
-	^ self visitMaybeClosureAsBlock: aWollokTryNode catchBlocks first expression
+	^ self visitMaybeClosureAsBlock: currentCatchBlock expression
 ]
 
 { #category : #'private - visiting' }
@@ -787,11 +797,10 @@ WollokInterpreter >> visitTry: aWollokTryNode [
 	tryContext := self currentContext.
 	[[ result := self visitMaybeClosureAsBlock: aWollokTryNode expression ]
 		on: WollokError
-		do: [ :e | | aWollokException |
-			aWollokException := e wollokException.
+		do: [ :e |
 			self popContextUntil: tryContext.
 			result := self
-				handleCatchException: aWollokException
+				handleCatchException: e
 				forTryNode: aWollokTryNode ]]
 			ensure: [
 				aWollokTryNode alwaysExpression ifNotNil: [
