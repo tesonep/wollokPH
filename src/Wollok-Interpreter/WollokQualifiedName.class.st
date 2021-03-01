@@ -71,6 +71,15 @@ WollokQualifiedName >> copyWithoutFirst [
 	^ aCopy
 ]
 
+{ #category : #copying }
+WollokQualifiedName >> copyWithoutLast [
+
+	| aCopy |
+	aCopy := self copy.
+	aCopy segments: (aCopy segments allButLast).
+	^ aCopy
+]
+
 { #category : #accessing }
 WollokQualifiedName >> hash [ 
 	

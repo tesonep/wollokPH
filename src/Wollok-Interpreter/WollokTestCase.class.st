@@ -12,6 +12,12 @@ WollokTestCase >> interpretOn: aWollokInterpreter [
 ]
 
 { #category : #accessing }
+WollokTestCase >> isFixture [
+
+	^ false
+]
+
+{ #category : #accessing }
 WollokTestCase >> name [
 	
 	^ ast name value value

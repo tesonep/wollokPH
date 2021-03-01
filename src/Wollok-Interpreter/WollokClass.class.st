@@ -65,7 +65,7 @@ WollokClass >> initialize: allVariables into: anInstance fromNamedArguments: arg
 { #category : #initialization }
 WollokClass >> initializeFromAST: aWollokASTNode [
 	
-	self initializeFromAST: aWollokASTNode withName: aWollokASTNode name value
+	self initializeFromAST: aWollokASTNode withName: aWollokASTNode name value value
 ]
 
 { #category : #initialization }
@@ -216,8 +216,11 @@ WollokClass >> resolve: aName inInstance: anInstance andPut: aValue inInterprete
 	variable := allVariables 
 		detect: [ :aVariable | aVariable variable name value = aName ]
 		ifNone: [ self notYetImplemented ].
-	variable constToken ifNotNil: [ 
+
+	"Fixtures can modify the const variables"
+	(variable constToken isNotNil and: [anInterpreter currentContext isFixture not]) ifTrue: [  
 		anInterpreter throwExceptionWithMessage: 'Invalid Assignment in const variable' ].
+
 	anInstance instanceVariables at: (allVariables indexOf: variable) put: aValue.
 	^ aValue
 ]

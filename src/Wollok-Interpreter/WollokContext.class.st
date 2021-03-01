@@ -69,6 +69,12 @@ WollokContext >> initialize [
 	variables := Dictionary new.
 ]
 
+{ #category : #testing }
+WollokContext >> isFixture [
+
+	^ method isFixture
+]
+
 { #category : #accessing }
 WollokContext >> method [
 	^ method

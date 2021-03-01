@@ -59,6 +59,12 @@ WollokMethod >> interpretOn: aWollokInterpreter [
 			aWollokInterpreter activatePrimitiveMethod ].
 ]
 
+{ #category : #testing }
+WollokMethod >> isFixture [
+	
+	^ false
+]
+
 { #category : #accessing }
 WollokMethod >> methodClass [
 	

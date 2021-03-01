@@ -25,6 +25,9 @@ WollokLangList >> contains: aWollokInmediate with: aWollokInmediate2 [
 { #category : #'native methods' }
 WollokLangList >> equals: aWollokInmediate with: aWollokInmediate2 [ 
 	
+	(aWollokInmediate2 wollokClass = aWollokInmediate wollokClass)
+		ifFalse: [ ^ interpreter falseObject ].
+	
 	^ interpreter asWollokBoolean: aWollokInmediate unbox = aWollokInmediate2 unbox
 ]
 

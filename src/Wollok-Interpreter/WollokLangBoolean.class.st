@@ -17,6 +17,12 @@ WollokLangBoolean >> and: aWollokObject with: aWollokObject2 [
 ]
 
 { #category : #'native methods' }
+WollokLangBoolean >> equals: aWollokBoolean with: aWollokObject [ 
+	
+	^ interpreter asWollokBoolean: (aWollokBoolean = aWollokObject)
+]
+
+{ #category : #'native methods' }
 WollokLangBoolean >> negate: aWollokObject [
 
 	^ interpreter asWollokBoolean: aWollokObject asBoolean not
