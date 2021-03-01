@@ -126,7 +126,6 @@ WollokLangList >> sortBy: aWollokList with: aWollokClosure [
 WollokLangList >> withoutDuplicates: aWollokList [ 
 	
 	| original proccessed |
-	
 	original := aWollokList unbox.
 	proccessed := Set new.
 	

@@ -9,6 +9,14 @@ Class {
 }
 
 { #category : #accessing }
+WollokObject >> = anotherObject [ 
+	
+	anotherObject species = self species
+		ifFalse: [ ^ false ].
+	^ instanceVariables = anotherObject instanceVariables
+]
+
+{ #category : #accessing }
 WollokObject >> asBoolean [
 	
 	self assert: ((instanceVariables at: 1) isKindOf: Boolean).
@@ -64,6 +72,12 @@ WollokObject >> box: aValue [
 	
 	self instanceVariables at: 1 put: aValue.
 	^ self
+]
+
+{ #category : #accessing }
+WollokObject >> hash [
+
+	^ instanceVariables hash
 ]
 
 { #category : #accessing }

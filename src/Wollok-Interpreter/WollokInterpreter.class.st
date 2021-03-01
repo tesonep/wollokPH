@@ -601,7 +601,7 @@ WollokInterpreter >> visitBinaryOperation: aNode [
 
 	left := aNode leftOperand acceptVisitor: self.
 	right := aNode rightOperand acceptVisitor: self.	
-	
+
 	^ self 
 		sendMessage: operator
 		to: left 

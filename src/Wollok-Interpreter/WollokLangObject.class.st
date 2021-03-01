@@ -13,8 +13,8 @@ WollokLangObject class >> wollokClassName [
 { #category : #'native methods' }
 WollokLangObject >> checkNotNull: aReceiver with: aMaybeNull with: variableName [
 
-	aReceiver = interpreter nullObject 
-		ifTrue: [ self halt ].
+	aMaybeNull = interpreter nullObject 
+		ifTrue: [ interpreter throwExceptionWithMessage: variableName unbox asString ].
 
 ]
 
@@ -34,7 +34,7 @@ WollokLangObject >> generateDoesNotUnderstandMessage: aReceiver with: anObjectSt
 { #category : #'native methods' }
 WollokLangObject >> identity: aWollokObject [ 
 	
-	^ interpreter asWollokNumber: aWollokObject hash
+	^ interpreter asWollokNumber: aWollokObject identityHash
 ]
 
 { #category : #'native methods' }
