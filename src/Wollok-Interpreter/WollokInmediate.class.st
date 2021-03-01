@@ -28,3 +28,9 @@ WollokInmediate >> printOn: aStream [
 		nextPut: $)
 
 ]
+
+{ #category : #accessing }
+WollokInmediate >> wollokIdentity [
+
+	^ self unbox hash
+]

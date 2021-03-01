@@ -65,7 +65,7 @@ WollokInterpreter >> activatePrimitiveMethod [
 WollokInterpreter >> applyClosure: aWollokClosure withArguments: aCollection [
 
 	| arguments |
-	
+
 	arguments := self
 		distributeArguments: aCollection
 		intoParameters: aWollokClosure ast parameters.
@@ -613,10 +613,9 @@ WollokInterpreter >> visitBlockExpression: aNode [
 
 	| lastExpression |
 	lastExpression := self voidObject.
-
 	aNode expressions do: [ :aStatement | 
-					self currentContext hasReturned 
-						ifFalse: [ lastExpression := aStatement acceptVisitor: self ]].
+		self currentContext hasReturned 
+			ifFalse: [ lastExpression := aStatement acceptVisitor: self ]].
 					
 	^ lastExpression
 ]

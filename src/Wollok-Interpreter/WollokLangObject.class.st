@@ -34,7 +34,7 @@ WollokLangObject >> generateDoesNotUnderstandMessage: aReceiver with: anObjectSt
 { #category : #'native methods' }
 WollokLangObject >> identity: aWollokObject [ 
 	
-	^ interpreter asWollokNumber: aWollokObject identityHash
+	^ interpreter asWollokNumber: aWollokObject wollokIdentity
 ]
 
 { #category : #'native methods' }

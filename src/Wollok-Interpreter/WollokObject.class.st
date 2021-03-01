@@ -130,3 +130,9 @@ WollokObject >> wollokClass [
 WollokObject >> wollokClass: aWollokAnonymousClass [ 
 	wollokClass := aWollokAnonymousClass
 ]
+
+{ #category : #accessing }
+WollokObject >> wollokIdentity [
+	
+	^ self identityHash
+]
