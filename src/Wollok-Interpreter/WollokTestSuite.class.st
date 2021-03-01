@@ -31,7 +31,8 @@ WollokTestSuite >> fixture: aWollokTestFixture [
 WollokTestSuite >> initialize [ 
 	
 	super initialize.
-	tests := OrderedCollection new
+	tests := OrderedCollection new.
+	variables := OrderedCollection new.
 ]
 
 { #category : #accessing }

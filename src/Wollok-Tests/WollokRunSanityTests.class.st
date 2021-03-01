@@ -96,7 +96,9 @@ WollokRunSanityTests >> testExecuteSanityTest [
 		load.
 	interpreter rootPackage: rootPackage.
 	
-	wollokSuite := rootPackage suites detect: [ :e | e ast = suite ].
+	wollokSuite := rootPackage suites
+		ifEmpty: [ rootPackage defaultSuite ]
+		ifNotEmpty: [ :suiteNodes | suiteNodes detect: [ :e | e ast = suite ] ].
 	wollokTestCase := wollokSuite tests detect: [ :e | e ast = test ].
 	
 	rootPackage resolveBindingsUsing: interpreter.
