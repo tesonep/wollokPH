@@ -69,9 +69,10 @@ WollokPackage >> at: aString put: aValue [
 WollokPackage >> defaultSuite [
 	
 	^ defaultSuite ifNil: [ 
-			defaultSuite := WollokTestSuite new 
-				name: 'defaultTestSuite';
-				yourself ]
+		defaultSuite := WollokTestSuite new 
+			name: 'defaultTestSuite';
+			yourself.
+		self at: defaultSuite name put: defaultSuite  ]
 ]
 
 { #category : #resolving }
