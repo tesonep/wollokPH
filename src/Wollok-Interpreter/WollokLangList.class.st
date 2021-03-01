@@ -99,9 +99,11 @@ WollokLangList >> max: aWollokInmediate [
 ]
 
 { #category : #'native methods' }
-WollokLangList >> remove: aWollokList with: aWollokObject [ 
-
-	^ aWollokList box: (aWollokList unbox copyWithout: aWollokObject) 
+WollokLangList >> remove: aWollokInmediate with: aWollokInmediate2 [ 
+	
+	(aWollokInmediate unbox includes: aWollokInmediate2)
+		ifFalse: [ self halt ].
+	^ aWollokInmediate unbox remove: aWollokInmediate2
 ]
 
 { #category : #'native methods' }

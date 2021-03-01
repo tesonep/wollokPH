@@ -462,6 +462,11 @@ WollokInterpreter >> rootPackage [
 ]
 
 { #category : #accessing }
+WollokInterpreter >> rootPackage: aWollokPackage [ 
+	rootPackage := aWollokPackage
+]
+
+{ #category : #accessing }
 WollokInterpreter >> rootPaths [
 	
 	^ { self class libraryRootDirectory asAbsolute asPath }

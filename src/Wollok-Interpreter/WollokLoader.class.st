@@ -216,6 +216,12 @@ WollokLoader >> visitImport: aWollokImportNode [
 	rootPackage imports add: qualifiedName.
 ]
 
+{ #category : #visiting }
+WollokLoader >> visitMixin: aWollokMixinNode [ 
+	
+	^ WollokMixin fromAST: aWollokMixinNode
+]
+
 { #category : #loading }
 WollokLoader >> visitNamedObject: aWollokNamedObjectNode [ 
 
