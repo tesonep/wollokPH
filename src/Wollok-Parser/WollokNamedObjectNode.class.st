@@ -57,6 +57,12 @@ WollokNamedObjectNode >> compositeTokenVariables [
 	^ #(#semicolonTokens #andTokens #commaTokens)
 ]
 
+{ #category : #accessing }
+WollokNamedObjectNode >> constructors [
+
+	^ #()
+]
+
 { #category : #generated }
 WollokNamedObjectNode >> inheritsToken [
 	^ inheritsToken

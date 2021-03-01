@@ -6,7 +6,8 @@ Class {
 		'superclass',
 		'methods',
 		'variables',
-		'nativeObject'
+		'nativeObject',
+		'constructors'
 	],
 	#category : #'Wollok-Interpreter'
 }
@@ -15,6 +16,12 @@ Class {
 WollokClass class >> defaultSuperclassName [
 	
 	^ 'wollok.lang.Object'
+]
+
+{ #category : #constructors }
+WollokClass >> addConstructor: aWollokConstructorNode [ 
+
+	self constructors add: aWollokConstructorNode
 ]
 
 { #category : #methods }
@@ -53,6 +60,12 @@ WollokClass >> basicInstantiate: aWollokInterpreter [
 
 ]
 
+{ #category : #accessing }
+WollokClass >> constructors [
+	
+	^ constructors
+]
+
 { #category : #'private - instance creation' }
 WollokClass >> initialize: allVariables into: anInstance fromNamedArguments: arguments [ 
 
@@ -76,9 +89,11 @@ WollokClass >> initializeFromAST: aWollokASTNode withName: aName [
 	name := aName.
 	methods := OrderedCollection new.
 	variables := OrderedCollection new.
+	constructors := OrderedCollection new.
 
 	aWollokASTNode variables do: [ :e | self addVariable: e ].	
 	aWollokASTNode methods do: [ :e | self addMethod: (WollokMethod fromAST: e) ].
+	aWollokASTNode constructors do: [ :e | self addConstructor: e ].
 ]
 
 { #category : #initialization }
@@ -259,7 +274,14 @@ WollokClass >> runConstructorOn: anInstance arguments: arguments allVariables: a
 
 	anInterpreter sendMessage: 'initialize' to: anInstance  withArguments: #().
 	
-	anInterpreter popContext
+	anInterpreter popContext.
+	
+	self constructors ifNotEmpty: [
+		self assert: self constructors size = 1.
+		anInterpreter
+			activateMethod: (WollokConstructor fromAST: self constructors first)
+			withReceiver: anInstance
+			withArguments: arguments positionalArguments]
 ]
 
 { #category : #accessing }

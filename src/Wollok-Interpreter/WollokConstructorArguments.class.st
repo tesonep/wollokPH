@@ -48,12 +48,29 @@ WollokConstructorArguments >> namedArguments [
 	^ namedArguments
 ]
 
+{ #category : #accessing }
+WollokConstructorArguments >> positionalArguments [
+	^ positionalArguments
+]
+
 { #category : #visiting }
 WollokConstructorArguments >> visitAssignment: aNode [
 
 	namedArguments
 		at: aNode variable name value
 		put: (aNode value acceptVisitor: interpreter)
+]
+
+{ #category : #visiting }
+WollokConstructorArguments >> visitNullLiteral: aWollokNullLiteralNode [ 
+
+	positionalArguments add: (aWollokNullLiteralNode acceptVisitor: interpreter)
+]
+
+{ #category : #visiting }
+WollokConstructorArguments >> visitNumberLiteral: aWollokNumberLiteralNode [ 
+
+	positionalArguments add: (aWollokNumberLiteralNode acceptVisitor: interpreter)
 ]
 
 { #category : #visiting }

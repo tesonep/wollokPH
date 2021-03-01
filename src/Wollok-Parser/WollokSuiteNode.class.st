@@ -29,6 +29,12 @@ WollokSuiteNode >> compositeTokenVariables [
 	^ #(#semicolonTokens)
 ]
 
+{ #category : #accessing }
+WollokSuiteNode >> constructors [
+
+	^ #()
+]
+
 { #category : #generated }
 WollokSuiteNode >> describeToken [
 	^ describeToken
