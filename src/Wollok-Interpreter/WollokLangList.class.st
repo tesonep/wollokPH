@@ -59,7 +59,7 @@ WollokLangList >> findOrElse: aWollokList with: aWollokClosure with: aWollokClos
 { #category : #'native methods' }
 WollokLangList >> fold: aWollokList with: anInitialValue with: aWollokClosure [ 
 
-	^ aWollokList asCollection 
+	^ aWollokList asCollection copy
 		inject: anInitialValue 
 		into: [ :accum :anItem | 
 			interpreter sendMessage: 'apply' 
@@ -94,7 +94,7 @@ WollokLangList >> max: aWollokInmediate [
 	
 	aWollokInmediate unbox isEmpty 
 		ifTrue: [ interpreter throwExceptionWithMessage: 'Cannot calculate max value in an empty List' ].
-	
+		
 	^ interpreter asWollokNumber: (aWollokInmediate unbox max: [ :a | a unbox ])
 ]
 
