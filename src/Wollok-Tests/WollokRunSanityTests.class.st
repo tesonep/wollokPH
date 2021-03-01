@@ -86,7 +86,7 @@ WollokRunSanityTests >> test: anObject [
 { #category : #tests }
 WollokRunSanityTests >> testExecuteSanityTest [
 
-	| interpreter fileNode testResult rootPackage |
+	| interpreter fileNode testResult rootPackage wollokSuite wollokTestCase |
 	interpreter := WollokInterpreter new.
 	fileNode := test topParent.
 
@@ -94,15 +94,18 @@ WollokRunSanityTests >> testExecuteSanityTest [
 		interpreter: interpreter;
 		rootFile: fileNode;
 		load.
-
+	interpreter rootPackage: rootPackage.
+	
+	wollokSuite := rootPackage suites detect: [ :e | e ast = suite ].
+	wollokTestCase := wollokSuite tests detect: [ :e | e ast = test ].
+	
 	rootPackage resolveBindingsUsing: interpreter.
 	rootPackage initializeStateUsing: interpreter.
 
 	testResult := WollokTestResult new.
 	
-	suite tests do: [ :aTest |
-		suite fixture ifNotNil: [:aFixture | interpreter interpretFixture: aFixture ].
-		interpreter interpretTest: aTest storingResultsIn: testResult ].
+	suite fixture ifNotNil: [:aFixture | interpreter interpretFixture: aFixture ].
+	interpreter interpretTest: wollokTestCase storingResultsIn: testResult.
 	
 	self assert: testResult errors size equals: 0.
 	self assert: testResult failures size equals: 0.	
