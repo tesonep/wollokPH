@@ -135,6 +135,11 @@ WollokInterpreter >> booleanClass [
 
 ]
 
+{ #category : #accessing }
+WollokInterpreter >> contextStack [
+	^ contextStack
+]
+
 { #category : #'anonymous classes' }
 WollokInterpreter >> createAnonymousClassForObjectLiteral: aWollokObjectLiteralNode [ 
 
