@@ -18,18 +18,30 @@ WollokClass class >> defaultSuperclassName [
 	^ 'wollok.lang.Object'
 ]
 
+{ #category : #'private - intance creation' }
+WollokClass >> activateConstructorOn: anObject withArguments: arguments onInterpreter: anInterpreter [
+	
+	| matchingConstructor |	
+	matchingConstructor := self
+		lookupConstructorWithArguments: arguments positionalArguments size
+		onInterpreter: anInterpreter.
+	matchingConstructor ifNotNil: [ 
+		anInterpreter
+			activateMethod: matchingConstructor
+			withReceiver: anObject
+			withArguments: arguments positionalArguments ]
+]
+
 { #category : #constructors }
 WollokClass >> addConstructor: aWollokConstructorNode [ 
 
+	aWollokConstructorNode methodClass: self.
 	self constructors add: aWollokConstructorNode
 ]
 
 { #category : #methods }
 WollokClass >> addMethod: aWollokMethod [
 
-	self haltIf: [ 
-		(aWollokMethod isKindOf: WollokMethod) not
-			and: [ (aWollokMethod isKindOf: WollokTestNode) not ] ].
 	aWollokMethod methodClass: self.
 	self methods add: aWollokMethod
 ]
@@ -93,7 +105,7 @@ WollokClass >> initializeFromAST: aWollokASTNode withName: aName [
 
 	aWollokASTNode variables do: [ :e | self addVariable: e ].	
 	aWollokASTNode methods do: [ :e | self addMethod: (WollokMethod fromAST: e) ].
-	aWollokASTNode constructors do: [ :e | self addConstructor: e ].
+	aWollokASTNode constructors do: [ :e | self addConstructor: (WollokConstructor fromAST: e) ].
 ]
 
 { #category : #initialization }
@@ -139,6 +151,23 @@ WollokClass >> isProperty: aString [
 				self superclass
 					ifNil: [ ^ false ]
 					ifNotNil: [ :aSuperclass | aSuperclass isProperty: aString ]]
+]
+
+{ #category : #methods }
+WollokClass >> lookupConstructorWithArguments: numberOfArguments onInterpreter: anInterpreter [
+
+	self constructors
+		detect: [ :constructor | constructor hasNumberOfArguments: numberOfArguments ]
+		ifFound: [ :constructor | ^ constructor ].
+	
+	self superclass constructors
+		detect: [ :constructor | constructor hasNumberOfArguments: numberOfArguments ]
+		ifFound: [ :constructor | ^ constructor ].
+	
+	(self constructors notEmpty or: [ self superclass constructors notEmpty ]) ifTrue: [
+		anInterpreter throwExceptionWithMessage: 'No matching constructor' ].
+	
+	^ nil
 ]
 
 { #category : #'native objects' }
@@ -273,15 +302,13 @@ WollokClass >> runConstructorOn: anInstance arguments: arguments allVariables: a
 						ifNotNil:[ :anExpression | anExpression acceptVisitor: anInterpreter ])  ]].
 
 	anInterpreter sendMessage: 'initialize' to: anInstance  withArguments: #().
+
+	self
+		activateConstructorOn: anInstance
+		withArguments: arguments
+		onInterpreter: anInterpreter.
 	
 	anInterpreter popContext.
-	
-	self constructors ifNotEmpty: [
-		self assert: self constructors size = 1.
-		anInterpreter
-			activateMethod: (WollokConstructor fromAST: self constructors first)
-			withReceiver: anInstance
-			withArguments: arguments positionalArguments]
 ]
 
 { #category : #accessing }

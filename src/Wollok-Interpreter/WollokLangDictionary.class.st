@@ -38,18 +38,20 @@ WollokLangDictionary >> forEach: aWollokObject with: aWollokClosure [
 { #category : #'native methods' }
 WollokLangDictionary >> initialize: aWollokObject [ 
 	
-	aWollokObject instanceVariables: { Dictionary new }
+	aWollokObject instanceVariables: { OrderedDictionary new }
 ]
 
 { #category : #'native methods' }
 WollokLangDictionary >> keys: aWollokObject [ 
 	
-	^ interpreter asWollokList: aWollokObject unbox keys
+	^ interpreter asWollokList: aWollokObject unbox keys asOrderedCollection
 ]
 
 { #category : #'native methods' }
 WollokLangDictionary >> put: aWollokDictionary with: aKey with: aValue [ 
 	
+	self checkNotNull: aWollokDictionary with: aKey with: 'key'.
+	self checkNotNull: aWollokDictionary with: aValue with: 'value'.
 	aWollokDictionary unbox at: aKey put: aValue.
 	^ aWollokDictionary
 ]
@@ -64,5 +66,5 @@ WollokLangDictionary >> remove: aWollokObject with: aWollokInmediate [
 { #category : #'native methods' }
 WollokLangDictionary >> values: aWollokObject [ 
 	
-	^ interpreter asWollokList: aWollokObject unbox values
+	^ interpreter asWollokList: aWollokObject unbox values asOrderedCollection
 ]

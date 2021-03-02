@@ -13,6 +13,8 @@ WollokObject >> = anotherObject [
 	
 	anotherObject species = self species
 		ifFalse: [ ^ false ].
+	anotherObject wollokClass = self wollokClass
+			ifFalse: [ ^ false ].
 	^ instanceVariables = anotherObject instanceVariables
 ]
 

@@ -65,7 +65,6 @@ WollokInterpreter >> activatePrimitiveMethod [
 WollokInterpreter >> applyClosure: aWollokClosure withArguments: aCollection [
 
 	| arguments |
-
 	arguments := self
 		distributeArguments: aCollection
 		intoParameters: aWollokClosure ast parameters.
@@ -212,6 +211,18 @@ WollokInterpreter >> distributeArguments: initialArguments intoParameters: param
 	^ arguments
 ]
 
+{ #category : #visiting }
+WollokInterpreter >> executeConstructorNode: aConstructorNode inClass: aClass [
+
+	| arguments |
+
+	arguments := WollokConstructorArguments 
+								extractArguments: aConstructorNode argumentList
+								using: self.
+
+	^ aClass instantiateUsing: self with: arguments
+]
+
 { #category : #accessing }
 WollokInterpreter >> falseObject [
 	
@@ -292,6 +303,22 @@ WollokInterpreter >> initialize [
 
 	super initialize.
 	contextStack := Stack new
+]
+
+{ #category : #visiting }
+WollokInterpreter >> interpretConstructor: constructor onReceiver: aReceiver fromClass: aClass [
+	
+	| arguments |
+	arguments := WollokConstructorArguments 
+		extractArguments: constructor argumentList
+		using: self.
+		
+	aClass
+		activateConstructorOn: aReceiver
+		withArguments: arguments
+		onInterpreter: self.
+		
+	^ aReceiver
 ]
 
 { #category : #'api - interpreting' }
@@ -652,16 +679,10 @@ WollokInterpreter >> visitClosure: aWollokClosureNode [
 ]
 
 { #category : #visiting }
-WollokInterpreter >> visitConstructorCall: aWollokConstructorCallNode [ 
-
-	| aClass arguments |
-	aClass := self resolve: aWollokConstructorCallNode classRef asWollokQualifiedName.
-
-	arguments := WollokConstructorArguments 
-								extractArguments: aWollokConstructorCallNode argumentList
-								using: self.
-
-	^ aClass instantiateUsing: self with: arguments
+WollokInterpreter >> visitConstructorCall: aWollokConstructorCallNode [
+	^ self
+		executeConstructorNode: aWollokConstructorCallNode
+		inClass: (self resolve: aWollokConstructorCallNode classRef asWollokQualifiedName)
 ]
 
 { #category : #visiting }
@@ -724,10 +745,12 @@ WollokInterpreter >> visitNumberLiteral: aWollokNumberLiteralNode [
 { #category : #'visiting - literals' }
 WollokInterpreter >> visitObjectLiteral: aWollokObjectLiteralNode [
 
-	| anAnonymousClass |
+	| anAnonymousClass arguments |
 	anAnonymousClass := self createAnonymousClassForObjectLiteral: aWollokObjectLiteralNode.
-	^ anAnonymousClass instantiateUsing: self.
-
+	arguments := WollokConstructorArguments 
+			extractArguments: aWollokObjectLiteralNode superclassParameters
+			using: self.
+	^ anAnonymousClass instantiateUsing: self with: arguments
 ]
 
 { #category : #visiting }
@@ -753,6 +776,15 @@ WollokInterpreter >> visitSelf: aWollokSelfNode [
 	^ self currentContext selfReceiver
 ]
 
+{ #category : #visiting }
+WollokInterpreter >> visitSelfDelegatingConstructorCall: aWollokSelfDelegatingConstructorCallNode [ 
+	
+	^ self
+		interpretConstructor: aWollokSelfDelegatingConstructorCallNode
+		onReceiver: self currentContext receiver
+		fromClass: self currentContext receiver wollokClass
+]
+
 { #category : #'visiting - literals' }
 WollokInterpreter >> visitSetLiteral: aNode [ 
 
@@ -768,6 +800,15 @@ WollokInterpreter >> visitStringLiteral: aWollokStringLiteralNode [
 	^ self asWollokString: (aWollokStringLiteralNode value value copyWithout: $").
 
 
+]
+
+{ #category : #visiting }
+WollokInterpreter >> visitSuperDelegatingConstructorCall: aWollokSuperDelegatingConstructorCallNode [ 
+
+	^ self
+		interpretConstructor: aWollokSuperDelegatingConstructorCallNode
+		onReceiver: self currentContext receiver
+		fromClass: self currentContext method methodClass superclass
 ]
 
 { #category : #visiting }

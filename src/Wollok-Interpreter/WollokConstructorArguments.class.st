@@ -61,10 +61,16 @@ WollokConstructorArguments >> visitAssignment: aNode [
 		put: (aNode value acceptVisitor: interpreter)
 ]
 
-{ #category : #visiting }
-WollokConstructorArguments >> visitNullLiteral: aWollokNullLiteralNode [ 
+{ #category : #'as yet unclassified' }
+WollokConstructorArguments >> visitBinaryOperation: aWollokBinaryOperationNode [
 
-	positionalArguments add: (aWollokNullLiteralNode acceptVisitor: interpreter)
+	^ self visitExpression: aWollokBinaryOperationNode 
+]
+
+{ #category : #visiting }
+WollokConstructorArguments >> visitExpression: anExpressionNode [
+	
+	positionalArguments add: (anExpressionNode acceptVisitor: interpreter)
 ]
 
 { #category : #visiting }
@@ -76,10 +82,7 @@ WollokConstructorArguments >> visitNumberLiteral: aWollokNumberLiteralNode [
 { #category : #visiting }
 WollokConstructorArguments >> visitPositionalArgumentsList: aNode [
 
-	aNode values
-		do: [ :anArgument | anArgument acceptVisitor: self ].
-		
-
+	aNode values do: [ :anArgument | anArgument acceptVisitor: self ]
 ]
 
 { #category : #visiting }

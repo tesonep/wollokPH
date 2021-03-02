@@ -23,12 +23,9 @@ WollokRunSanityTests class >> testParameters [
 		thenDo: [ :e | | wollokFileNode |
 			wollokFileNode := WollokParser parseFile: e.
 
-			defaultSuite := WollokTestSuite new 
-				name: 'defaultTestSuite';
-				yourself.
 			wollokFileNode tests do: [ :aTest |
 				aMatrix addCase: { 
-					#suite -> defaultSuite. 
+					#suite -> nil. 
 					#test -> aTest.
 					#fileToTest -> e } ].
 
@@ -61,7 +58,7 @@ WollokRunSanityTests >> printOn: aStream [
 	parametersToUse do: [ :e |
 		(e valuable isKindOf: FileReference)
 			ifTrue: [ aStream nextPutAll: (e valuable path relativeTo: WollokLoader sanityTestsRootDirectory) pathString ]
-			ifFalse: [ aStream nextPutAll: e valuable name value value asString ].
+			ifFalse: [ aStream nextPutAll: (e valuable ifNotNil: #name) value value asString ].
 	] separatedBy: [ aStream nextPutAll: ';'. ].
 	aStream nextPutAll: ')'.
 
@@ -96,9 +93,9 @@ WollokRunSanityTests >> testExecuteSanityTest [
 		load.
 	interpreter rootPackage: rootPackage.
 	
-	wollokSuite := rootPackage suites
-		ifEmpty: [ rootPackage defaultSuite ]
-		ifNotEmpty: [ :suiteNodes | suiteNodes detect: [ :e | e ast = suite ] ].
+	wollokSuite := suite
+		ifNil: [ rootPackage defaultSuite ]
+		ifNotNil: [ rootPackage suites detect: [ :e | e ast = suite ] ].
 	wollokTestCase := wollokSuite tests detect: [ :e | e ast = test ].
 	
 	rootPackage resolveBindingsUsing: interpreter.

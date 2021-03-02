@@ -11,14 +11,6 @@ WollokLangObject class >> wollokClassName [
 ]
 
 { #category : #'native methods' }
-WollokLangObject >> checkNotNull: aReceiver with: aMaybeNull with: variableName [
-
-	aMaybeNull = interpreter nullObject 
-		ifTrue: [ interpreter throwExceptionWithMessage: variableName unbox asString ].
-
-]
-
-{ #category : #'native methods' }
 WollokLangObject >> className: aWollokObject [ 
 	
 	^ interpreter asWollokString: aWollokObject wollokClass name

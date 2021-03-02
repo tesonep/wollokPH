@@ -34,6 +34,14 @@ WollokNativeObject >> checkIntegerNumber: aMaybeWollokNumber name: aName [
 		ifFalse: [ interpreter throwExceptionWithMessage: 'Parameter ' , aName , ' should be an integer number'].	
 ]
 
+{ #category : #'native methods' }
+WollokNativeObject >> checkNotNull: aReceiver with: aMaybeNull with: variableName [
+
+	aMaybeNull = interpreter nullObject
+		ifTrue: [ interpreter throwExceptionWithMessage: variableName asString ].
+
+]
+
 { #category : #utils }
 WollokNativeObject >> checkNumber: aMaybeWollokNumber name: aName [
 

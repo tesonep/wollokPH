@@ -1,14 +1,20 @@
 Class {
 	#name : #WollokConstructor,
-	#superclass : #WollokRuntimeElement,
+	#superclass : #WollokMethod,
 	#category : #'Wollok-Interpreter'
 }
 
 { #category : #interpreting }
 WollokConstructor >> interpretOn: aWollokInterpreter [ 
 	
-	aWollokInterpreter visitMaybeClosureAsBlock: self ast expression
-
+	self ast delegatingConstructorCall ifNotNil: [ 
+		^ self ast delegatingConstructorCall acceptVisitor: aWollokInterpreter.
+	].
+	
+	self ast expression ifNotNil: [ 
+		^ aWollokInterpreter visitMaybeClosureAsBlock: self ast expression ].
+	
+	
 ]
 
 { #category : #accessing }
