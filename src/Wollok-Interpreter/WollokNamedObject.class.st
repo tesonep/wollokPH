@@ -12,16 +12,22 @@ Class {
 { #category : #accessing }
 WollokNamedObject >> assignedValue [
 	
-	^ object ifNil: [ 
-			object := wollokClass basicInstantiate: interpreter.
+	^ object ifNil: [ | arguments |
+
+		"should be executed here because it may be recursive"
+		object := wollokClass basicInstantiate: interpreter.
 		
-			wollokClass
-				runConstructorOn: object 
-				arguments: WollokConstructorArguments empty
-				allVariables: wollokClass allVariables
-				interpreter: interpreter.
-				
-			object]
+		arguments := WollokConstructorArguments 
+			extractArguments: self ast parentParameters
+			using: interpreter.
+		
+		wollokClass 
+			runConstructorOn: object
+			arguments: arguments
+			allVariables: wollokClass allVariables
+			interpreter: interpreter.
+
+		object ]
 ]
 
 { #category : #initialization }

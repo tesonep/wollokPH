@@ -17,6 +17,12 @@ WollokConstructor >> interpretOn: aWollokInterpreter [
 	
 ]
 
+{ #category : #testing }
+WollokConstructor >> isConstructor [
+	
+	^ true
+]
+
 { #category : #accessing }
 WollokConstructor >> parameters [
 	

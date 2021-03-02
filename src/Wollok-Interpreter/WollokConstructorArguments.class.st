@@ -74,6 +74,12 @@ WollokConstructorArguments >> visitExpression: anExpressionNode [
 ]
 
 { #category : #visiting }
+WollokConstructorArguments >> visitMemberFeatureCall: aWollokMemberFeatureCallNode [ 
+	
+	^ self visitExpression: aWollokMemberFeatureCallNode
+]
+
+{ #category : #visiting }
 WollokConstructorArguments >> visitNumberLiteral: aWollokNumberLiteralNode [ 
 
 	positionalArguments add: (aWollokNumberLiteralNode acceptVisitor: interpreter)
@@ -89,4 +95,10 @@ WollokConstructorArguments >> visitPositionalArgumentsList: aNode [
 WollokConstructorArguments >> visitStringLiteral: aWollokStringLiteralNode [ 
 	
 	positionalArguments add: (aWollokStringLiteralNode acceptVisitor: interpreter)
+]
+
+{ #category : #visiting }
+WollokConstructorArguments >> visitVariable: aWollokVariableNode [ 
+	
+	^ self visitExpression: aWollokVariableNode
 ]

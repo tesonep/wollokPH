@@ -818,11 +818,9 @@ WollokInterpreter >> visitSuperInvocation: aWollokSuperInvocationNode [
 	
 	receiver := self currentContext receiver.
 	arguments := aWollokSuperInvocationNode arguments collect: [:anArgument | anArgument acceptVisitor: self].
-	
-	self assert: (aWollokSuperInvocationNode parent parent isKindOf: WollokMethodDeclarationNode).
-	
+
 	^ self
-		sendMessage: aWollokSuperInvocationNode parent parent name value
+		sendMessage: aWollokSuperInvocationNode methodNode name value
 		to: receiver
 		withArguments: arguments
 		isSuperSend: true

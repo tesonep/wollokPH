@@ -262,7 +262,9 @@ WollokClass >> resolve: aName inInstance: anInstance andPut: aValue inInterprete
 		ifNone: [ self notYetImplemented ].
 
 	"Fixtures can modify the const variables"
-	(variable constToken isNotNil and: [anInterpreter currentContext isFixture not]) ifTrue: [  
+	(variable constToken isNotNil and: [
+		anInterpreter currentContext isFixture not
+			and: [ anInterpreter currentContext method isConstructor not ]]) ifTrue: [  
 		anInterpreter throwExceptionWithMessage: 'Invalid Assignment in const variable' ].
 
 	anInstance instanceVariables at: (allVariables indexOf: variable) put: aValue.
