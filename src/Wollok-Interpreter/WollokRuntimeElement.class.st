@@ -40,6 +40,12 @@ WollokRuntimeElement >> initializeFromAST: aWollokASTNode [
 	
 ]
 
+{ #category : #testing }
+WollokRuntimeElement >> isConstructor [
+	
+	^ false
+]
+
 { #category : #accessing }
 WollokRuntimeElement >> package [
 	
