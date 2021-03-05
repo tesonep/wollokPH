@@ -7,6 +7,30 @@ Class {
 	#category : #'Wollok-Tests'
 }
 
+{ #category : #'as yet unclassified' }
+WollokTestFeatureMapBuilder class >> exportAsCSVMap: aDictionary to: file [
+	file asFileReference ensureDelete.
+	file asFileReference writeStreamDo: [ :str | | sortedValues |
+		str tab;tab.
+		sortedValues := aDictionary values flattened asSet sorted.
+		sortedValues do: [ :e |
+			str nextPutAll: e asString; tab ].
+		str cr.
+		aDictionary keysAndValuesDo: [ :k :v |
+			str
+				nextPutAll: k first name value value asString;
+				tab;
+				nextPutAll: (k second relativeTo: WollokLoader essentialTestsRootDirectory) pathString asString;
+				tab.
+			
+			sortedValues do: [ :e |
+				str nextPutAll: (v includes: e) asString; tab.
+			 ].
+			str cr.
+			]
+		]
+]
+
 { #category : #'building suites' }
 WollokTestFeatureMapBuilder class >> testParameters [ 
 
