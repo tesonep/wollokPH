@@ -66,6 +66,11 @@ WollokPackage >> at: aString put: aValue [
 ]
 
 { #category : #accessing }
+WollokPackage >> children [
+	^ children
+]
+
+{ #category : #accessing }
 WollokPackage >> defaultSuite [
 	
 	^ defaultSuite ifNil: [ 

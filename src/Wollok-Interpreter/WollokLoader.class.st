@@ -12,6 +12,12 @@ Class {
 	#category : #'Wollok-Interpreter'
 }
 
+{ #category : #paths }
+WollokLoader class >> essentialTestsRootDirectory [
+
+	^ self sanityTestsRootDirectory / 'essential'
+]
+
 { #category : #parameters }
 WollokLoader class >> libraryExtension [
 	
@@ -27,7 +33,7 @@ WollokLoader class >> libraryRootDirectory [
 { #category : #paths }
 WollokLoader class >> sanityTestsRootDirectory [
 
-	^ self wollokRepositoryDirectory / 'test/sanity'
+	^ self wollokRepositoryDirectory / 'test'
 ]
 
 { #category : #paths }

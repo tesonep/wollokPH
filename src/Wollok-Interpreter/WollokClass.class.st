@@ -160,6 +160,9 @@ WollokClass >> lookupConstructorWithArguments: numberOfArguments onInterpreter: 
 		detect: [ :constructor | constructor hasNumberOfArguments: numberOfArguments ]
 		ifFound: [ :constructor | ^ constructor ].
 	
+	(self superclass isNil and: [ numberOfArguments = 0 ])
+		ifTrue: [ ^ nil ].
+	
 	self superclass constructors
 		detect: [ :constructor | constructor hasNumberOfArguments: numberOfArguments ]
 		ifFound: [ :constructor | ^ constructor ].

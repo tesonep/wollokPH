@@ -1,23 +1,20 @@
 Class {
-	#name : #WollokRunSanityTests,
-	#superclass : #ParametrizedTestCase,
+	#name : #WollokTestFeatureMapBuilder,
+	#superclass : #WollokRunSanityTests,
 	#instVars : [
-		'fileToTest',
-		'suite',
-		'interpreter',
-		'rootAstNode'
+		'success'
 	],
 	#category : #'Wollok-Tests'
 }
 
 { #category : #'building suites' }
-WollokRunSanityTests class >> testParameters [ 
+WollokTestFeatureMapBuilder class >> testParameters [ 
 
 	| directory aMatrix |
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokLoader sanityTestsRootDirectory.
+	directory := WollokLoader essentialTestsRootDirectory.
 
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]
@@ -40,62 +37,25 @@ WollokRunSanityTests class >> testParameters [
 	^ aMatrix
 ]
 
-{ #category : #accessing }
-WollokRunSanityTests >> fileToTest [
-	^ fileToTest
-]
+{ #category : #tests }
+WollokTestFeatureMapBuilder >> newInterpreter [
 
-{ #category : #accessing }
-WollokRunSanityTests >> fileToTest: anObject [
-	fileToTest := anObject
+	^ WollokFeatureMapBuilder new
 ]
 
 { #category : #tests }
-WollokRunSanityTests >> newInterpreter [
+WollokTestFeatureMapBuilder >> tearDown [
 
-	^ WollokInterpreter new
+	success = true ifTrue: [
+		FeatureMap at: {rootAstNode . fileToTest} put: interpreter featureMap.
+		interpreter rootPackage children collect: [ :e | 
+			interpreter featureMap add: e class name ].
+	].
+	super tearDown.
 ]
 
 { #category : #tests }
-WollokRunSanityTests >> printOn: aStream [
-
-	aStream nextPutAll: self class printString.
-	self printTestSelectorOn: aStream.
-	aStream nextPutAll: '('.
-	parametersToUse do: [ :e |
-		(e valuable isKindOf: FileReference)
-			ifTrue: [ aStream nextPutAll: (e valuable path relativeTo: WollokLoader sanityTestsRootDirectory) pathString ]
-			ifFalse: [ aStream nextPutAll: (e valuable ifNotNil: #name) value value asString ].
-	] separatedBy: [ aStream nextPutAll: ';'. ].
-	aStream nextPutAll: ')'.
-
-]
-
-{ #category : #accessing }
-WollokRunSanityTests >> rootAstNode [
-	^ rootAstNode
-]
-
-{ #category : #accessing }
-WollokRunSanityTests >> rootAstNode: anObject [
-	rootAstNode := anObject
-]
-
-{ #category : #tests }
-WollokRunSanityTests >> setUp [
-
-	super setUp.
-	interpreter := self newInterpreter.
-]
-
-{ #category : #accessing }
-WollokRunSanityTests >> suite: aWollokSuiteNode [ 
-	
-	suite := aWollokSuiteNode 
-]
-
-{ #category : #tests }
-WollokRunSanityTests >> testExecuteSanityTest [
+WollokTestFeatureMapBuilder >> testExecuteSanityTest [
 
 	| fileNode testResult rootPackage wollokSuite wollokTestCase |
 	fileNode := rootAstNode topParent.
@@ -113,13 +73,13 @@ WollokRunSanityTests >> testExecuteSanityTest [
 	
 	rootPackage resolveBindingsUsing: interpreter.
 	rootPackage initializeStateUsing: interpreter.
-
+interpreter initialize.
 	testResult := WollokTestResult new.
 	
 	[interpreter interpretTest: wollokTestCase storingResultsIn: testResult]
 		on: WollokError do: [ :e |
 			(e wollokException wollokClass = (interpreter resolve: 'wollok.lib.AssertionException'))
 				ifFalse: [ e pass ].
-			self fail: e wollokException unbox unbox ]
-	
+			self fail: e wollokException unbox unbox ].
+	success := true.
 ]
