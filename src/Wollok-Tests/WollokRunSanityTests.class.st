@@ -17,7 +17,7 @@ WollokRunSanityTests class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokLoader sanityTestsRootDirectory.
+	directory := WollokLoader sanityTestsRootDirectory / 'essential'.
 
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]
