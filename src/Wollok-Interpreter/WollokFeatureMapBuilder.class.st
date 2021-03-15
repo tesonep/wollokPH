@@ -81,7 +81,6 @@ WollokFeatureMapBuilder >> visitClosure: aWollokClosureNode [
 { #category : #visiting }
 WollokFeatureMapBuilder >> visitConstructorCall: aWollokConstructorCallNode [
 
-	featureMap add: #constructors.
 	^ super visitConstructorCall: aWollokConstructorCallNode
 ]
 
@@ -90,20 +89,6 @@ WollokFeatureMapBuilder >> visitIfExpression: aWollokIfExpressionNode [
 
 	featureMap add: #if.
 	^ super visitIfExpression: aWollokIfExpressionNode 
-]
-
-{ #category : #visiting }
-WollokFeatureMapBuilder >> visitSelfDelegatingConstructorCall: aWollokSelfDelegatingConstructorCallNode [ 
-
-	featureMap add: #constructors.
-	^ super visitSelfDelegatingConstructorCall: aWollokSelfDelegatingConstructorCallNode 
-]
-
-{ #category : #visiting }
-WollokFeatureMapBuilder >> visitSuperDelegatingConstructorCall: aWollokSuperDelegatingConstructorCallNode [ 
-
-	featureMap add: #constructors.
-	^ super visitSuperDelegatingConstructorCall: aWollokSuperDelegatingConstructorCallNode 
 ]
 
 { #category : #visiting }

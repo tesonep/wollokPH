@@ -38,7 +38,7 @@ WollokTestFeatureMapBuilder class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokLoader essentialTestsRootDirectory.
+	directory := WollokLoader sanityTestsRootDirectory / 'essential'.
 
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]

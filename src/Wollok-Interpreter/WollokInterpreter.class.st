@@ -305,22 +305,6 @@ WollokInterpreter >> initialize [
 	contextStack := Stack new
 ]
 
-{ #category : #visiting }
-WollokInterpreter >> interpretConstructor: constructor onReceiver: aReceiver fromClass: aClass [
-	
-	| arguments |
-	arguments := WollokConstructorArguments 
-		extractArguments: constructor argumentList
-		using: self.
-		
-	aClass
-		activateConstructorOn: aReceiver
-		withArguments: arguments
-		onInterpreter: self.
-		
-	^ aReceiver
-]
-
 { #category : #'api - interpreting' }
 WollokInterpreter >> interpretProgram: aWollokFileNode [ 
 
@@ -776,15 +760,6 @@ WollokInterpreter >> visitSelf: aWollokSelfNode [
 	^ self currentContext selfReceiver
 ]
 
-{ #category : #visiting }
-WollokInterpreter >> visitSelfDelegatingConstructorCall: aWollokSelfDelegatingConstructorCallNode [ 
-	
-	^ self
-		interpretConstructor: aWollokSelfDelegatingConstructorCallNode
-		onReceiver: self currentContext receiver
-		fromClass: self currentContext receiver wollokClass
-]
-
 { #category : #'visiting - literals' }
 WollokInterpreter >> visitSetLiteral: aNode [ 
 
@@ -800,15 +775,6 @@ WollokInterpreter >> visitStringLiteral: aWollokStringLiteralNode [
 	^ self asWollokString: (aWollokStringLiteralNode value value copyWithout: $").
 
 
-]
-
-{ #category : #visiting }
-WollokInterpreter >> visitSuperDelegatingConstructorCall: aWollokSuperDelegatingConstructorCallNode [ 
-
-	^ self
-		interpretConstructor: aWollokSuperDelegatingConstructorCallNode
-		onReceiver: self currentContext receiver
-		fromClass: self currentContext method methodClass superclass
 ]
 
 { #category : #visiting }
