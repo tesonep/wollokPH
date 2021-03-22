@@ -42,7 +42,7 @@ WollokSyntaxHighlighter >> visitBlockExpression: aWollokBlockExpressionNode [
 
 { #category : #visiting }
 WollokSyntaxHighlighter >> visitClass: aWollokClassNode [ 
-	
+
 	self visitKeywordToken: aWollokClassNode classToken.
 	self visitName: aWollokClassNode name.
 	aWollokClassNode variables do: [ :e |
@@ -65,7 +65,6 @@ WollokSyntaxHighlighter >> visitFile: aWollokFileNode [
 			from: e first
 			to: e last
 			put: { TextColor gray } ].
-	
 	aWollokFileNode children do: [ :e |
 		e acceptVisitor: self ]
 ]
@@ -132,7 +131,15 @@ WollokSyntaxHighlighter >> visitNumberLiteral: aWollokNumberLiteralNode [
 	attributes
 		from: aWollokNumberLiteralNode startPosition
 		to: aWollokNumberLiteralNode stopPosition
-		put: { TextColor blue }
+		put: { TextColor color: Color lightRed }
+]
+
+{ #category : #visiting }
+WollokSyntaxHighlighter >> visitObjectLiteral: aWollokObjectLiteralNode [ 
+	
+	self visitKeywordToken: aWollokObjectLiteralNode objectToken.
+	aWollokObjectLiteralNode members do: [ :m |
+		m acceptVisitor: self ]
 ]
 
 { #category : #visiting }
@@ -148,13 +155,15 @@ WollokSyntaxHighlighter >> visitStringLiteral: aWollokStringLiteralNode [
 	attributes
 		from: aWollokStringLiteralNode startPosition
 		to: aWollokStringLiteralNode stopPosition
-		put: { TextEmphasis bold . TextColor green }
+		put: { TextEmphasis bold . TextColor color: Color lightGreen }
 ]
 
 { #category : #visiting }
-WollokSyntaxHighlighter >> visitSuite: aWollokSuiteNode [ 
+WollokSyntaxHighlighter >> visitSuite: aWollokSuiteNode [
 
-	""
+	aWollokSuiteNode name acceptVisitor: self.
+	aWollokSuiteNode tests do: [ :e |
+		e acceptVisitor: self ]
 ]
 
 { #category : #visiting }
@@ -163,6 +172,12 @@ WollokSyntaxHighlighter >> visitTest: aWollokTestNode [
 	aWollokTestNode name acceptVisitor: self.
 	aWollokTestNode elements do: [ :e |
 		e acceptVisitor: self ]
+]
+
+{ #category : #visiting }
+WollokSyntaxHighlighter >> visitUnaryOperation: aWollokUnaryOperationNode [ 
+	
+	self visitKeywordToken: aWollokUnaryOperationNode operation.
 ]
 
 { #category : #visiting }

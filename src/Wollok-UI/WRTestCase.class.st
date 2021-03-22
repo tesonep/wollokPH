@@ -25,6 +25,12 @@ WRTestCase >> children [
 	^ #()
 ]
 
+{ #category : #running }
+WRTestCase >> debug [
+
+	self runOnErrorDo: [ :e | e pass ]
+]
+
 { #category : #accessing }
 WRTestCase >> fileNode [
 	
@@ -42,6 +48,12 @@ WRTestCase >> initialize [
 
 	super initialize.
 	result := WRTestResultNotRun new
+]
+
+{ #category : #testing }
+WRTestCase >> isError [
+	
+	^ result isError
 ]
 
 { #category : #accessing }
@@ -83,6 +95,12 @@ WRTestCase >> result: anObject [
 { #category : #running }
 WRTestCase >> run [
 
+	self runOnErrorDo: [ :e | self recordError: e ]
+]
+
+{ #category : #running }
+WRTestCase >> runOnErrorDo: errorBlock [
+
 	| interpreter rootPackage wollokSuite wollokTestCase |
 	interpreter := WollokInterpreter new.
 
@@ -99,12 +117,13 @@ WRTestCase >> run [
 		e ast = astNode ].
 	
 	rootPackage resolveBindingsUsing: interpreter.
-	rootPackage initializeStateUsing: interpreter.
 
-	"Clean the interpreter state so far"
-	interpreter initialize.
+	[[ 
+		rootPackage initializeStateUsing: interpreter.
+		"Clean the interpreter state so far"
+		interpreter initialize.
 
-	[[ interpreter
+		interpreter
 			activateMethod: wollokTestCase
 			withReceiver: (wollokSuite instantiateUsing: interpreter)
 			withArguments: #().
@@ -112,7 +131,7 @@ WRTestCase >> run [
 			(e wollokException wollokClass = (interpreter resolve: 'wollok.lib.AssertionException'))
 				ifTrue: [ self recordFailure: e wollokException unbox unbox ]
 				ifFalse: [ e pass ] ]]
-			on: Error do: [ :e | self recordError: e ].
+			on: Error do: [ :e | errorBlock value: e ].
 
 ]
 
@@ -131,4 +150,16 @@ WRTestCase >> suite [
 { #category : #accessing }
 WRTestCase >> suite: anObject [
 	suite := anObject
+]
+
+{ #category : #accessing }
+WRTestCase >> testCases [
+	
+	^ { self }
+]
+
+{ #category : #accessin }
+WRTestCase >> topASTNode [
+
+	^ astNode topParent
 ]

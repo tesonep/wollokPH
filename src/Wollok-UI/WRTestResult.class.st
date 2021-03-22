@@ -9,3 +9,9 @@ WRTestResult >> combineWithPassed: aWRTestResultPassed [
 	
 	self subclassResponsibility
 ]
+
+{ #category : #testing }
+WRTestResult >> isError [
+
+	^ false
+]

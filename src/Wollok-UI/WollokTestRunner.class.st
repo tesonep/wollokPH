@@ -25,6 +25,24 @@ WollokTestRunner class >> defaultSpec [
 		yourself
 ]
 
+{ #category : #initialization }
+WollokTestRunner >> allTestsCases [
+
+	^ testFiles gather: [ :file | file testCases ]
+]
+
+{ #category : #initialization }
+WollokTestRunner >> debugTests: tests [
+
+	[
+		tests doWithIndex: [ :e :i |
+			e debug.
+			self defer: [ 
+				progressBar adapter widget submorphs first value: (i / tests size) asFloat ] ].
+		self defer: [ self updateTree ].
+	] forkAt: 39.
+]
+
 { #category : #highlighting }
 WollokTestRunner >> highlight: anAST [
 
@@ -58,8 +76,18 @@ WollokTestRunner >> initializeWidgets [
 			title: 'Test'; 
 			addColumn: ((SpImageTableColumn evaluated: [ :each | each icon ]) width: 20);
 			addColumn: (SpStringTableColumn evaluated: [ :each | each name ]));
-		children: [ :node | node children ].
-	
+		children: [ :node | node children ];
+		contextMenu: [ self newMenu
+			addItem: [ :anItem | 
+				anItem
+					name: 'Run';
+					action: [ self runTests: testTree selectedItem testCases ] ];
+			addItem: [ :anItem | 
+				anItem
+					name: 'Debug';
+					action: [ self debugTests: testTree selectedItem testCases ] ];
+			yourself ].
+
 	code := self newText.
 	
 	progressBar := self newProgressBar.
@@ -72,11 +100,18 @@ WollokTestRunner >> initializeWidgets [
 { #category : #initialization }
 WollokTestRunner >> runAllTests [
 
+	self runTests: self allTestsCases
+]
+
+{ #category : #initialization }
+WollokTestRunner >> runTests: tests [
+
 	[
-	self testFiles doWithIndex: [ :e :i |
-		e run.
-		self defer: [ progressBar adapter widget submorphs first value: (i / self testFiles size) asFloat ] ].
-	self defer: [self updateTree].
+		tests doWithIndex: [ :e :i |
+			e run.
+			self defer: [ 
+				progressBar adapter widget submorphs first value: (i / tests size) asFloat ] ].
+		self defer: [ self updateTree ].
 	] forkAt: 39.
 ]
 
@@ -86,7 +121,8 @@ WollokTestRunner >> select: aWollokTestElement [
 	aWollokTestElement ifNil: [ 
 		code text: ''.
 		^ self ].
-	code text: (self highlight: aWollokTestElement astNode)
+
+	code text: (self highlight: aWollokTestElement topASTNode)
 ]
 
 { #category : #initialization }

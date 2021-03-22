@@ -10,6 +10,12 @@ WRTestResultNotRun >> + aTestResult [
 	^ aTestResult
 ]
 
+{ #category : #combining }
+WRTestResultNotRun >> combineWithPassed: aWRTestResultPassed [ 
+	
+	^ aWRTestResultPassed
+]
+
 { #category : #accessing }
 WRTestResultNotRun >> icon [
 

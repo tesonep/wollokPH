@@ -67,6 +67,12 @@ WollokTestFile >> children [
 	^ suites
 ]
 
+{ #category : #running }
+WollokTestFile >> debug [
+	
+	suites do: [ :suite | suite debug ]
+]
+
 { #category : #accessing }
 WollokTestFile >> file: aFileReference [ 
 	
@@ -76,6 +82,8 @@ WollokTestFile >> file: aFileReference [
 { #category : #accessing }
 WollokTestFile >> icon [
 	
+	(suites anySatisfy: [ :e | e isError ])
+		ifTrue: [ ^ self iconNamed: #testRed ].
 	^ self iconNamed: #catalog
 ]
 
@@ -107,4 +115,16 @@ WollokTestFile >> run [
 WollokTestFile >> sourceCode [
 	
 	^ astNode source
+]
+
+{ #category : #accessing }
+WollokTestFile >> testCases [
+	
+	^ suites gather: [ :suite | suite testCases ]
+]
+
+{ #category : #accessing }
+WollokTestFile >> topASTNode [
+	
+	^ astNode topParent
 ]

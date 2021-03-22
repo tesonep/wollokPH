@@ -37,6 +37,12 @@ WRTestSuite >> children [
 	^ tests
 ]
 
+{ #category : #running }
+WRTestSuite >> debug [
+	
+	tests do: [ :e | e debug ]
+]
+
 { #category : #accessing }
 WRTestSuite >> file [
 	^ file
@@ -64,6 +70,12 @@ WRTestSuite >> initialize [
 
 	super initialize.
 	tests := OrderedCollection new
+]
+
+{ #category : #testing }
+WRTestSuite >> isError [
+	
+	^ self testCases anySatisfy: [ :e | e isError ]
 ]
 
 { #category : #accessing }
@@ -96,6 +108,18 @@ WRTestSuite >> sourceCode [
 ]
 
 { #category : #accessing }
+WRTestSuite >> testCases [
+	
+	^ tests
+]
+
+{ #category : #accessing }
 WRTestSuite >> tests: anObject [
 	tests := anObject
+]
+
+{ #category : #accessing }
+WRTestSuite >> topASTNode [
+	
+	^ astNode ifNil: [ file astNode topParent ]
 ]
