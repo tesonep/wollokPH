@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'wollokException'
 	],
-	#category : #'Wollok-Interpreter'
+	#category : #'Wollok-Parser'
 }
 
 { #category : #accessing }

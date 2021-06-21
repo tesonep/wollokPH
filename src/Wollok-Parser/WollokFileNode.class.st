@@ -55,12 +55,6 @@ WollokFileNode >> initialize [
 ]
 
 { #category : #testing }
-WollokFileNode >> isLibrary [
-	
-	^ self filename extension = WollokInterpreter libraryExtension
-]
-
-{ #category : #testing }
 WollokFileNode >> isProgram [
 	
 	^ main isNotNil

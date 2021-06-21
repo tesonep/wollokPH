@@ -17,7 +17,7 @@ WollokRunSanityTests class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokLoader sanityTestsRootDirectory / 'essential'.
+	directory := WollokPlatform current sanityTestsRootDirectory / 'essential'.
 
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]
@@ -64,7 +64,7 @@ WollokRunSanityTests >> printOn: aStream [
 	aStream nextPutAll: '('.
 	parametersToUse do: [ :e |
 		(e valuable isKindOf: FileReference)
-			ifTrue: [ aStream nextPutAll: (e valuable path relativeTo: WollokLoader sanityTestsRootDirectory) pathString ]
+			ifTrue: [ aStream nextPutAll: (e valuable path relativeTo: WollokPlatform current sanityTestsRootDirectory) pathString ]
 			ifFalse: [ aStream nextPutAll: (e valuable ifNotNil: #name) value value asString ].
 	] separatedBy: [ aStream nextPutAll: ';'. ].
 	aStream nextPutAll: ')'.

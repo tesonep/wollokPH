@@ -132,7 +132,7 @@ WollokTestRunner >> testFiles [
 	
 	testFiles ifNotNil: [ ^ testFiles ].
 	
-	directory := WollokLoader essentialTestsRootDirectory.
+	directory := WollokPlatform current essentialTestsRootDirectory.
 	testFiles := OrderedCollection new.
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]

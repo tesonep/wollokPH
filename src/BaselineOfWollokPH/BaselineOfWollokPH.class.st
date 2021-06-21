@@ -21,5 +21,7 @@ BaselineOfWollokPH >> baseline: spec [
 			spec
 				package: 'Wollok-Interpreter' with: [ spec requires: 'Wollok-Parser' ];
 				package: 'Wollok-Parser' with: [ spec requires: 'SmaCC' ];
-				package: 'Wollok-Tests' with: [ spec requires: 'Wollok-Interpreter' ] ]
+				package: 'Wollok-Tests' with: [ spec requires: 'Wollok-Interpreter' ];
+				package: 'Wollok-UI' with: [ spec requires: 'Wollok-Interpreter' ];
+				package: 'Wollok-UI-Extensions' with: [ spec requires: 'Wollok-Interpreter' ]				]
 ]

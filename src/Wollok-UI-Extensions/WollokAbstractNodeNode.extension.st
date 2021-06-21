@@ -1,6 +1,6 @@
 Extension { #name : #WollokAbstractNodeNode }
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokAbstractNodeNode >> gtInspectorSourceCodeIn: composite [
 	<gtInspectorPresentationOrder: 30> 
 
@@ -12,7 +12,7 @@ WollokAbstractNodeNode >> gtInspectorSourceCodeIn: composite [
 		when: [ self source notNil ]
 ]
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokAbstractNodeNode >> gtInspectorTreeIn: composite [
 	<gtInspectorPresentationOrder: 30> 
 	^ (GTSimpleSmaCCTreeBrowser new treeIn: composite)

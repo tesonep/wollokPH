@@ -9,14 +9,14 @@ Class {
 	#category : #'Wollok-UI'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'instance creation' }
 WollokTestFile class >> forFile: aFile [
 
 	| instance wollokFileNode |
 	instance := self new.
 	instance file: aFile.
 	
-	wollokFileNode := WollokParser parseFile: aFile.
+	wollokFileNode := WollokPlatform current wollokParserClass parseFile: aFile.
 	instance astNode: wollokFileNode.
 	
 	wollokFileNode tests ifNotEmpty: [ | suite |
@@ -102,7 +102,7 @@ WollokTestFile >> isEmpty [
 { #category : #accessing }
 WollokTestFile >> name [
 	
-	^ (file relativeTo: WollokLoader sanityTestsRootDirectory) pathString
+	^ (file relativeTo: WollokPlatform current sanityTestsRootDirectory) pathString
 ]
 
 { #category : #running }

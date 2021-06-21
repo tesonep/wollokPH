@@ -101,25 +101,20 @@ WRTestCase >> run [
 { #category : #running }
 WRTestCase >> runOnErrorDo: errorBlock [
 
-	| interpreter rootPackage wollokSuite wollokTestCase |
-	interpreter := WollokInterpreter new.
-
-	rootPackage := WollokLoader new
-		interpreter: interpreter;
-		rootFile: self fileNode;
-		load.
-	interpreter rootPackage: rootPackage.
+	| interpreter wollokSuite wollokTestCase |
 	
-	wollokSuite := rootPackage suites
+	interpreter := WollokPlatform current newInterpreterWithRootFileNode: self fileNode.
+	
+	wollokSuite := interpreter rootPackage suites
 		detect: [ :e | e ast = self suite astNode ]
-		ifNone: [ rootPackage defaultSuite ].
+		ifNone: [ interpreter rootPackage defaultSuite ].
 	wollokTestCase := wollokSuite tests detect: [ :e | 
 		e ast = astNode ].
 	
-	rootPackage resolveBindingsUsing: interpreter.
+	interpreter rootPackage resolveBindingsUsing: interpreter.
 
 	[[ 
-		rootPackage initializeStateUsing: interpreter.
+		interpreter rootPackage initializeStateUsing: interpreter.
 		"Clean the interpreter state so far"
 		interpreter initialize.
 

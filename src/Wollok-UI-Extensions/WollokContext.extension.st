@@ -1,6 +1,6 @@
 Extension { #name : #WollokContext }
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokContext >> gtInspectorSourceCodeIn: composite [
 	<gtInspectorPresentationOrder: 1> 
 
@@ -10,7 +10,7 @@ WollokContext >> gtInspectorSourceCodeIn: composite [
 		when: [ self source notNil ]
 ]
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokContext >> source [
 
 	^ method source

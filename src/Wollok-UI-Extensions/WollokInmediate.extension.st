@@ -1,6 +1,6 @@
 Extension { #name : #WollokInmediate }
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokInmediate >> valueCollection [
 
 	^ { 'self' -> self }

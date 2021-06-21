@@ -20,7 +20,7 @@ WollokTestFeatureMapBuilder class >> exportAsCSVMap: aDictionary to: file [
 			str
 				nextPutAll: k first name value value asString;
 				tab;
-				nextPutAll: (k second relativeTo: WollokLoader essentialTestsRootDirectory) pathString asString;
+				nextPutAll: (k second relativeTo: WollokPlatform current essentialTestsRootDirectory) pathString asString;
 				tab.
 			
 			sortedValues do: [ :e |
@@ -38,7 +38,7 @@ WollokTestFeatureMapBuilder class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokLoader sanityTestsRootDirectory / 'essential'.
+	directory := WollokPlatform current sanityTestsRootDirectory / 'essential'.
 
 	directory allChildren 
 		select: [ :e | #( 'wtest') includes: e extension ]

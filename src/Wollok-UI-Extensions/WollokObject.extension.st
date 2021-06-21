@@ -1,6 +1,6 @@
 Extension { #name : #WollokObject }
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokObject >> gtInspectorVariablesIn: composite [
 	<gtInspectorPresentationOrder: 1> 
 
@@ -15,7 +15,7 @@ WollokObject >> gtInspectorVariablesIn: composite [
 				ifNotNil: [ selection value ] ]
 ]
 
-{ #category : #'*Wollok-UI' }
+{ #category : #'*Wollok-UI-Extensions' }
 WollokObject >> valueCollection [
 
 	^ { 'self' -> self }, 
