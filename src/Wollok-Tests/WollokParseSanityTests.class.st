@@ -11,7 +11,7 @@ WollokParseSanityTests class >> testParameters [
 	
 	aMatrix := ParametrizedTestMatrix new.
 
-	directory := WollokLoader current sanityTestsRootDirectory.
+	directory := WollokPlatform current sanityTestsRootDirectory.
 
 	directory allChildren 
 		select: [ :e | #( 'wlk' 'wtest' 'wpgm' ) includes: e extension ]
